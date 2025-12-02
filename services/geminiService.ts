@@ -93,7 +93,8 @@ const parseResponse = (text: string): { title: string; summary: string; impacts:
 };
 
 export const analyzeEvent = async (query: string): Promise<AnalysisResult> => {
-  const modelId = "gemini-2.5-flash"; 
+  // 使用最新的 gemini-3-pro-preview 模型，能力更强，信息更新
+  const modelId = "gemini-3-pro-preview"; 
   
   // Sync keys immediately before use
   syncEnv();
@@ -166,8 +167,15 @@ export const analyzeEvent = async (query: string): Promise<AnalysisResult> => {
       sources: sources,
     };
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error analyzing event:", error);
+    
+    // Check for specific 401/403 errors related to "API keys are not supported"
+    // This usually means the "Generative Language API" is not enabled in the Google Cloud Project
+    if (error.message && (error.message.includes("401") || error.message.includes("403")) && (error.message.includes("API key") || error.message.includes("supported"))) {
+       throw new Error(`Google Cloud 权限错误：当前 API Key 对应的项目未开启 "Generative Language API"。\n请访问以下链接开启服务：\nhttps://console.cloud.google.com/apis/library/generativelanguage.googleapis.com`);
+    }
+
     throw error;
   }
 };
