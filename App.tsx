@@ -28,7 +28,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-slate-100 selection:bg-blue-500/30">
+    <div className="min-h-screen bg-[#0f172a] text-slate-100 selection:bg-blue-500/30 flex flex-col">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-900/10 blur-[120px]" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-900/10 blur-[120px]" />
@@ -36,7 +36,7 @@ const App: React.FC = () => {
 
       <Header />
 
-      <main className="relative container mx-auto px-4 py-12 md:py-20">
+      <main className="relative container mx-auto px-4 py-12 md:py-20 flex-grow">
         {status === LoadingState.IDLE && (
           <div className="animate-in fade-in zoom-in duration-700">
             <SearchBar onSearch={handleSearch} isLoading={false} />
@@ -84,6 +84,12 @@ const App: React.FC = () => {
           </div>
         )}
       </main>
+
+      <footer className="w-full py-6 text-center relative z-10 border-t border-slate-800/50 bg-slate-900/50 backdrop-blur-sm">
+        <p className="text-sm text-slate-500 font-medium">
+          &copy; {new Date().getFullYear()} Cyberceratops. All rights reserved.
+        </p>
+      </footer>
     </div>
   );
 };

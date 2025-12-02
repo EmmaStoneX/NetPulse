@@ -1,55 +1,15 @@
 import { GoogleGenAI } from "@google/genai";
 import { AnalysisResult, SearchSource } from "../types";
 
-// Helper function to safely retrieve API keys from various sources
-// This prevents "Accessing property of undefined" errors in preview environments
-const getKey = (keyName: string): string | null => {
-  let value: string | null = null;
-
-  // 1. Try Import Meta (Vite)
-  try {
-    // @ts-ignore
-    if (typeof import.meta !== 'undefined' && import.meta.env) {
-      // @ts-ignore
-      value = import.meta.env[keyName];
-    }
-  } catch (e) {
-    // Ignore error if import.meta is not available
-  }
-
-  if (value) return value;
-
-  // 2. Try LocalStorage (For manual injection in browser)
-  try {
-    if (typeof localStorage !== 'undefined') {
-      value = localStorage.getItem(keyName);
-    }
-  } catch (e) {
-    // Ignore error
-  }
-
-  if (value) return value;
-  
-  // 3. Try Process Env (Fallback)
-  try {
-    if (typeof process !== 'undefined' && process.env) {
-      value = process.env[keyName];
-    }
-  } catch (e) {
-    // Ignore
-  }
-
-  return value;
-};
-
 /**
  * Perform a search using Tavily API
  */
 const searchTavily = async (query: string): Promise<{ results: any[] }> => {
-  const apiKey = getKey('VITE_TAVILY_API_KEY');
+  // Access via process.env which is now polyfilled in index.tsx
+  const apiKey = process.env.VITE_TAVILY_API_KEY;
 
   if (!apiKey) {
-    throw new Error("未配置 Tavily API Key。请在控制台运行 localStorage.setItem('VITE_TAVILY_API_KEY', '您的Key')");
+    throw new Error("未配置 Tavily API Key。请检查 Cloudflare 环境变量 VITE_TAVILY_API_KEY");
   }
 
   const response = await fetch("https://api.tavily.com/search", {
@@ -105,7 +65,8 @@ const parseResponse = (text: string): { title: string; summary: string; impacts:
 export const analyzeEvent = async (query: string): Promise<AnalysisResult> => {
   const modelId = "gemini-2.5-flash"; 
   
-  // Initialize client with process.env.API_KEY as per guidelines
+  // Initialize client with process.env.API_KEY as per guidelines.
+  // The polyfill in index.tsx ensures this value exists in the browser.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
   try {
