@@ -9,7 +9,7 @@ const searchTavily = async (query: string): Promise<{ results: any[] }> => {
   const apiKey = process.env.VITE_TAVILY_API_KEY;
 
   if (!apiKey) {
-    throw new Error("未配置 Tavily API Key。请检查 Cloudflare 环境变量 VITE_TAVILY_API_KEY");
+    throw new Error("未配置 Tavily API Key。请在 Cloudflare 环境变量中配置 VITE_TAVILY_API_KEY，或在控制台使用 localStorage.setItem('VITE_TAVILY_API_KEY', 'key') 注入。");
   }
 
   const response = await fetch("https://api.tavily.com/search", {
@@ -65,6 +65,11 @@ const parseResponse = (text: string): { title: string; summary: string; impacts:
 export const analyzeEvent = async (query: string): Promise<AnalysisResult> => {
   const modelId = "gemini-2.5-flash"; 
   
+  // Pre-check for API Key to give a better error message
+  if (!process.env.API_KEY) {
+    throw new Error("未配置 Gemini API Key。请在 Cloudflare 环境变量中配置 VITE_GEMINI_API_KEY，或在控制台使用 localStorage.setItem('VITE_GEMINI_API_KEY', 'key') 注入。");
+  }
+
   // Initialize client with process.env.API_KEY as per guidelines.
   // The polyfill in index.tsx ensures this value exists in the browser.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
