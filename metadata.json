@@ -1,0 +1,5 @@
+{
+  "name": "NetPulse: Event Horizon",
+  "description": "一个基于 Google 搜索增强的智能互联网事件分析器，提供摘要、影响分析及历史对比。",
+  "requestFramePermissions": []
+}
