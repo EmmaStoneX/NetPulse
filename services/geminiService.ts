@@ -15,16 +15,17 @@ const syncEnv = () => {
   const lsTavily = typeof window !== 'undefined' ? localStorage.getItem('VITE_TAVILY_API_KEY') : null;
 
   // 3. Update process.env (Polyfill)
-  // Ensure global process object exists (handled in index.tsx but double check here for safety)
-  if (typeof process === 'undefined') {
+  // Ensure global process object exists via window to bypass Vite replacement
+  if (!(window as any).process) {
     (window as any).process = { env: {} };
-  } else if (!process.env) {
-    process.env = {} as NodeJS.ProcessEnv;
+  } else if (!(window as any).process.env) {
+    (window as any).process.env = {};
   }
 
   // Priority: LocalStorage > Vite Env
-  process.env.API_KEY = lsGemini || viteGemini || '';
-  process.env.VITE_TAVILY_API_KEY = lsTavily || viteTavily || '';
+  // Using (window as any).process ensures we are writing to the runtime object, not a build-time replacement stub
+  (window as any).process.env.API_KEY = lsGemini || viteGemini || '';
+  (window as any).process.env.VITE_TAVILY_API_KEY = lsTavily || viteTavily || '';
 };
 
 /**
@@ -34,7 +35,8 @@ const searchTavily = async (query: string): Promise<{ results: any[] }> => {
   // Sync keys immediately before use
   syncEnv();
 
-  const apiKey = process.env.VITE_TAVILY_API_KEY;
+  // Access via window to bypass Vite replacement
+  const apiKey = (window as any).process.env.VITE_TAVILY_API_KEY;
 
   if (!apiKey) {
     throw new Error("未配置 Tavily API Key。请在 Cloudflare 环境变量中配置 VITE_TAVILY_API_KEY，或在控制台使用 localStorage.setItem('VITE_TAVILY_API_KEY', 'key') 注入。");
@@ -97,13 +99,15 @@ export const analyzeEvent = async (query: string): Promise<AnalysisResult> => {
   syncEnv();
 
   // Pre-check for API Key to give a better error message
-  if (!process.env.API_KEY) {
+  // Access via window to bypass Vite replacement
+  const apiKey = (window as any).process.env.API_KEY;
+
+  if (!apiKey) {
     throw new Error("未配置 Gemini API Key。请在 Cloudflare 环境变量中配置 VITE_GEMINI_API_KEY，或在控制台使用 localStorage.setItem('VITE_GEMINI_API_KEY', 'key') 注入。");
   }
 
-  // Initialize client with process.env.API_KEY as per guidelines.
-  // The polyfill in index.tsx ensures this value exists in the browser.
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // Initialize client with the retrieved key
+  const ai = new GoogleGenAI({ apiKey: apiKey });
 
   try {
     // Step 1: Search Tavily for context

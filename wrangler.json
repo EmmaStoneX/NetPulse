@@ -1,5 +1,5 @@
 {
-  "name": "netpulse",
+  "name": "netpulse-event-horizon",
   "compatibility_date": "2025-12-02",
   "assets": {
     "directory": "./dist"
