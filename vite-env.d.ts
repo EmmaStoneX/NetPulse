@@ -13,7 +13,6 @@ declare global {
   }
 
   // Augment NodeJS.ProcessEnv to include our keys.
-  // This merges with the existing @types/node definition if present, avoiding conflicts.
   namespace NodeJS {
     interface ProcessEnv {
       API_KEY: string;
@@ -22,7 +21,8 @@ declare global {
     }
   }
 
-  // Augment Window to include process for the polyfill in index.tsx
+  // Remove incompatible 'var process' declaration that conflicts with @types/node
+
   interface Window {
     process: {
       env: NodeJS.ProcessEnv;

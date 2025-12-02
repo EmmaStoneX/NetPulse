@@ -2,10 +2,38 @@ import { GoogleGenAI } from "@google/genai";
 import { AnalysisResult, SearchSource } from "../types";
 
 /**
+ * HELPER: Syncs environment variables from Vite env and localStorage to process.env.
+ * This ensures that keys injected via console (localStorage) AFTER page load are picked up immediately.
+ */
+const syncEnv = () => {
+  // 1. Explicitly access Vite env vars so build tool replaces them
+  const viteGemini = import.meta.env.VITE_GEMINI_API_KEY;
+  const viteTavily = import.meta.env.VITE_TAVILY_API_KEY;
+
+  // 2. Access LocalStorage (Developer Override)
+  const lsGemini = typeof window !== 'undefined' ? localStorage.getItem('VITE_GEMINI_API_KEY') : null;
+  const lsTavily = typeof window !== 'undefined' ? localStorage.getItem('VITE_TAVILY_API_KEY') : null;
+
+  // 3. Update process.env (Polyfill)
+  // Ensure global process object exists (handled in index.tsx but double check here for safety)
+  if (typeof process === 'undefined') {
+    (window as any).process = { env: {} };
+  } else if (!process.env) {
+    process.env = {} as NodeJS.ProcessEnv;
+  }
+
+  // Priority: LocalStorage > Vite Env
+  process.env.API_KEY = lsGemini || viteGemini || '';
+  process.env.VITE_TAVILY_API_KEY = lsTavily || viteTavily || '';
+};
+
+/**
  * Perform a search using Tavily API
  */
 const searchTavily = async (query: string): Promise<{ results: any[] }> => {
-  // Access via process.env which is now polyfilled in index.tsx
+  // Sync keys immediately before use
+  syncEnv();
+
   const apiKey = process.env.VITE_TAVILY_API_KEY;
 
   if (!apiKey) {
@@ -65,6 +93,9 @@ const parseResponse = (text: string): { title: string; summary: string; impacts:
 export const analyzeEvent = async (query: string): Promise<AnalysisResult> => {
   const modelId = "gemini-2.5-flash"; 
   
+  // Sync keys immediately before use
+  syncEnv();
+
   // Pre-check for API Key to give a better error message
   if (!process.env.API_KEY) {
     throw new Error("未配置 Gemini API Key。请在 Cloudflare 环境变量中配置 VITE_GEMINI_API_KEY，或在控制台使用 localStorage.setItem('VITE_GEMINI_API_KEY', 'key') 注入。");
