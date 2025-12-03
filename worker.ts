@@ -21,8 +21,15 @@ export default {
         const geminiKey = env.VITE_GEMINI_API_KEY;
         const tavilyKey = env.VITE_TAVILY_API_KEY;
 
-        if (!geminiKey || !tavilyKey) {
-          return new Response(JSON.stringify({ error: "Server-side configuration error: Missing API Keys" }), {
+        // Robust check for missing keys with detailed error message
+        const missingKeys: string[] = [];
+        if (!geminiKey) missingKeys.push("VITE_GEMINI_API_KEY");
+        if (!tavilyKey) missingKeys.push("VITE_TAVILY_API_KEY");
+
+        if (missingKeys.length > 0) {
+          return new Response(JSON.stringify({ 
+            error: `Server-side configuration error: Missing API Keys (${missingKeys.join(", ")}). Please check Cloudflare Worker Settings -> Variables.` 
+          }), {
             status: 500,
             headers: { "Content-Type": "application/json" }
           });
