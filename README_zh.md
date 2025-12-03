@@ -1,7 +1,6 @@
 # NetPulse: 事件视界
 
-[中文](./README_zh.md)
-
+[English](./README.md)
 ---
 
 ## 🌏 简介
