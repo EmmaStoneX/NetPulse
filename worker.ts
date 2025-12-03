@@ -1,4 +1,3 @@
-
 interface Env {
   VITE_GEMINI_API_KEY: string;
   VITE_TAVILY_API_KEY: string;
@@ -11,27 +10,41 @@ interface TavilySearchResult {
   content: string;
 }
 
+// Standard CORS headers
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*", // In production, change this to your specific domain if needed
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
 export default {
   async fetch(request: Request, env: Env, ctx: any): Promise<Response> {
     const url = new URL(request.url);
 
-    // API Route: POST /api/analyze
+    // 1. Handle CORS Preflight (OPTIONS)
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        headers: corsHeaders,
+      });
+    }
+
+    // 2. API Route: POST /api/analyze
     if (url.pathname === "/api/analyze" && request.method === "POST") {
       try {
+        // --- Security Check: Environment Variables ---
         const geminiKey = env.VITE_GEMINI_API_KEY;
         const tavilyKey = env.VITE_TAVILY_API_KEY;
-
-        // Robust check for missing keys with detailed error message
         const missingKeys: string[] = [];
         if (!geminiKey) missingKeys.push("VITE_GEMINI_API_KEY");
         if (!tavilyKey) missingKeys.push("VITE_TAVILY_API_KEY");
 
         if (missingKeys.length > 0) {
+          // Configuration errors are safe to return to the admin/dev
           return new Response(JSON.stringify({ 
-            error: `Server-side configuration error: Missing API Keys (${missingKeys.join(", ")}). Please check Cloudflare Worker Settings -> Variables.` 
+            error: `Server-side configuration error: Missing API Keys (${missingKeys.join(", ")}).` 
           }), {
             status: 500,
-            headers: { "Content-Type": "application/json" }
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
           });
         }
 
@@ -41,7 +54,7 @@ export default {
         if (!query) {
           return new Response(JSON.stringify({ error: "Missing query parameter" }), {
             status: 400,
-            headers: { "Content-Type": "application/json" }
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
           });
         }
 
@@ -59,7 +72,9 @@ export default {
         });
 
         if (!tavilyResponse.ok) {
-          throw new Error(`Tavily Search failed: ${tavilyResponse.statusText}`);
+          // Log specific error internally
+          console.error(`Tavily API Error: ${tavilyResponse.status} ${tavilyResponse.statusText}`);
+          throw new Error("Failed to fetch search results.");
         }
 
         const tavilyData: any = await tavilyResponse.json();
@@ -115,8 +130,12 @@ export default {
         });
 
         if (!geminiResponse.ok) {
+          // Log the raw error from the proxy internally for debugging
           const errText = await geminiResponse.text();
-          throw new Error(`Gemini API Error: ${geminiResponse.status} - ${errText}`);
+          console.error(`Gemini Proxy Error (${geminiResponse.status}): ${errText}`);
+          
+          // Throw a sanitized error to the user
+          throw new Error("AI Analysis Service Unavailable. Please try again later.");
         }
 
         const geminiData: any = await geminiResponse.json();
@@ -132,13 +151,24 @@ export default {
           rawText: text,
           sources: sources
         }), {
-          headers: { "Content-Type": "application/json" }
+          // Success Response with CORS
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
 
       } catch (error: any) {
-        return new Response(JSON.stringify({ error: error.message }), {
+        // --- Security: Error Sanitization ---
+        // 1. Log the full details to Cloudflare Worker Logs (visible to Admin)
+        console.error("Worker Error:", error);
+
+        // 2. Return a generic error message to the client to avoid leaking proxy URLs or internal logic
+        // Use the error message ONLY if it's a known safe error (like "Missing query"), otherwise generic.
+        const safeMessage = error.message === "Failed to fetch search results." 
+          ? "Search service unavailable." 
+          : "An internal server error occurred during analysis.";
+
+        return new Response(JSON.stringify({ error: safeMessage }), {
           status: 500,
-          headers: { "Content-Type": "application/json" }
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
       }
     }
