@@ -94,7 +94,7 @@ const parseResponse = (text: string): { title: string; summary: string; impacts:
 export const analyzeEvent = async (query: string): Promise<AnalysisResult> => {
   // 使用 gemini-3-pro-preview 模型
   const modelId = "gemini-3-pro-preview"; 
-  const baseUrl = "https://kickoff.netlib.re";
+  const baseUrl = "https://0rzz.ggff.net";
   
   // Sync keys immediately before use
   syncEnv();
