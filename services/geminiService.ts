@@ -99,7 +99,7 @@ export const analyzeEvent = async (query: string): Promise<AnalysisResult> => {
   // Sync keys immediately before use
   syncEnv();
 
-  // Pre-check for API Key to give a better error message
+  // Pre-check for API Key
   // Access via window to bypass Vite replacement
   const apiKey = (window as any).process.env.API_KEY;
 
@@ -144,28 +144,33 @@ export const analyzeEvent = async (query: string): Promise<AnalysisResult> => {
     (将此事件与类似的历史事件进行比较。解释相似之处和不同之处。例如，“这让人想起了2016年的Dyn攻击，因为……”)
     `;
 
-    // Step 3: Call Gemini via Native Fetch (Bypassing SDK to strictly enforce Proxy URL)
-    // Security update: Pass API Key via Header instead of URL parameter
-    const url = `${baseUrl}/v1beta/models/${modelId}:generateContent`;
+    // Step 3: Call Gemini via OpenAI Compatible Endpoint (New API / One API)
+    // This uses the standard /v1/chat/completions endpoint which is safer and more stable for proxies
+    const url = `${baseUrl}/v1/chat/completions`;
     
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-goog-api-key': apiKey // Pass key in header for better security (avoids URL logging)
+        // Standard OpenAI security: Bearer Token. 
+        // This keeps the key out of the URL and is compatible with 'sk-' keys.
+        'Authorization': `Bearer ${apiKey}` 
       },
       body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }]
+        model: modelId,
+        messages: [
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        stream: false
       })
     });
 
     if (!response.ok) {
       const errText = await response.text();
-      let errMsg = `Gemini API Request Failed: ${response.status} ${response.statusText}`;
+      let errMsg = `API Request Failed: ${response.status} ${response.statusText}`;
       try {
         const errJson = JSON.parse(errText);
         if (errJson.error && errJson.error.message) {
@@ -179,8 +184,8 @@ export const analyzeEvent = async (query: string): Promise<AnalysisResult> => {
 
     const data = await response.json();
     
-    // Extract text from Gemini response structure
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "未生成分析结果。";
+    // Extract text from OpenAI response structure: choices[0].message.content
+    const text = data.choices?.[0]?.message?.content || "未生成分析结果。";
     
     // Map Tavily results to our SearchSource type for the UI
     const sources: SearchSource[] = searchResults.map((r: any) => ({
@@ -197,9 +202,9 @@ export const analyzeEvent = async (query: string): Promise<AnalysisResult> => {
   } catch (error: any) {
     console.error("Error analyzing event:", error);
     
-    // Check for specific 401/403 errors related to "API keys are not supported"
+    // Provide better error messages for common proxy issues
     if (error.message && (error.message.includes("401") || error.message.includes("403"))) {
-       throw new Error(`API 权限验证失败。请检查您的中转 Key 是否正确。错误信息: ${error.message}`);
+       throw new Error(`权限验证失败。请检查您的 API Key 是否正确。(${error.message})`);
     }
 
     throw error;
