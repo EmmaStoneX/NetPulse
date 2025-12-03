@@ -1,6 +1,8 @@
+
 {
   "name": "netpulse-event-horizon",
   "compatibility_date": "2025-12-02",
+  "main": "worker.ts",
   "assets": {
     "directory": "./dist"
   },
