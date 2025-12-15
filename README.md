@@ -25,6 +25,10 @@
 - **AI Model**: Google Gemini 3 Pro Preview (accessed via OpenAI-compatible interface)
 - **Search**: Tavily AI Search API
 
+## 🧱 Build Notes
+
+- Tailwind CSS is loaded via CDN in `index.html`; there is no PostCSS/Tailwind pipeline. Keep the CDN script tag when updating styles to avoid build-time failures caused by missing plugins.
+
 ## 🚀 Getting Started
 
 ### Prerequisites

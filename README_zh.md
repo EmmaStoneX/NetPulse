@@ -25,6 +25,10 @@
 - **AI 模型**: Google Gemini 3 Pro Preview (通过 OpenAI 兼容接口访问)
 - **搜索引擎**: Tavily AI Search API
 
+## 🧱 构建说明
+
+- 在 `index.html` 中通过 CDN 引入 Tailwind CSS，本项目没有 PostCSS/Tailwind 的构建管线。更新样式时请保留该 CDN 脚本标签，避免因为缺少插件导致构建失败。
+
 ## 🚀 快速开始
 
 ### 前置要求
