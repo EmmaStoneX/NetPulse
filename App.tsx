@@ -59,7 +59,7 @@ const App: React.FC = () => {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-900/10 blur-[120px]" />
       </div>
 
-      <Header />
+      <Header isLoading={status === LoadingState.SEARCHING} />
 
       <main className="relative container mx-auto px-4 sm:px-6 flex-1 flex items-center justify-center">
         {status === LoadingState.IDLE && (

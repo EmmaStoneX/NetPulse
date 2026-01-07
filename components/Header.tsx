@@ -3,7 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { Activity, Menu, X } from 'lucide-react';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  isLoading?: boolean;
+}
+
+export const Header: React.FC<HeaderProps> = ({ isLoading = false }) => {
   const { t } = useTranslation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -24,7 +28,17 @@ export const Header: React.FC = () => {
       <div className="hidden md:flex items-center gap-4">
         <div className="flex items-center gap-4 text-sm font-medium text-slate-400">
           <span>{t('header.realTimeAnalysis')}</span>
-          <span>•</span>
+          {/* 绿色呼吸灯指示器 */}
+          <div className="relative flex items-center justify-center">
+            <span 
+              className={`w-2 h-2 rounded-full bg-green-500 ${
+                isLoading ? 'animate-pulse' : ''
+              }`}
+            ></span>
+            {isLoading && (
+              <span className="absolute w-4 h-4 rounded-full bg-green-500/30 animate-ping"></span>
+            )}
+          </div>
           <span>{t('header.searchEnabled')}</span>
         </div>
         <div className="w-px h-6 bg-slate-700"></div>
@@ -33,6 +47,17 @@ export const Header: React.FC = () => {
 
       {/* 移动端：汉堡菜单按钮 */}
       <div className="flex md:hidden items-center gap-2">
+        {/* 移动端呼吸灯 */}
+        <div className="relative flex items-center justify-center mr-1">
+          <span 
+            className={`w-2 h-2 rounded-full bg-green-500 ${
+              isLoading ? 'animate-pulse' : ''
+            }`}
+          ></span>
+          {isLoading && (
+            <span className="absolute w-4 h-4 rounded-full bg-green-500/30 animate-ping"></span>
+          )}
+        </div>
         <LanguageSwitcher />
         <button 
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -48,7 +73,16 @@ export const Header: React.FC = () => {
         <div className="absolute top-full left-0 right-0 bg-slate-900/95 backdrop-blur-sm border-b border-slate-800 md:hidden animate-in slide-in-from-top duration-200">
           <div className="px-4 py-4 space-y-3">
             <div className="flex items-center gap-2 text-sm text-slate-400">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+              <div className="relative flex items-center justify-center">
+                <span 
+                  className={`w-2 h-2 rounded-full bg-green-500 ${
+                    isLoading ? 'animate-pulse' : ''
+                  }`}
+                ></span>
+                {isLoading && (
+                  <span className="absolute w-4 h-4 rounded-full bg-green-500/30 animate-ping"></span>
+                )}
+              </div>
               <span>{t('header.realTimeAnalysis')}</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-slate-400">
