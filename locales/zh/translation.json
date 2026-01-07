@@ -37,7 +37,7 @@
   },
   "footer": {
     "poweredBy": "Powered by Google Gemini",
-    "copyright": "© {year} Cyberceratops. All rights reserved.",
+    "copyright": "© {{year}} Cyberceratops. All rights reserved.",
     "privacyPolicy": "隐私政策",
     "termsOfService": "使用条款"
   },

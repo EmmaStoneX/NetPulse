@@ -61,9 +61,9 @@ const App: React.FC = () => {
 
       <Header />
 
-      <main className="relative container mx-auto px-4 sm:px-6 py-8 md:py-16 flex-grow">
+      <main className="relative container mx-auto px-4 sm:px-6 py-4 md:py-8 flex-grow">
         {status === LoadingState.IDLE && (
-          <div className="animate-in fade-in zoom-in duration-700 mt-6 md:mt-10 lg:mt-20">
+          <div className="animate-in fade-in zoom-in duration-700 mt-2 md:mt-4 lg:mt-8">
             <SearchBar onSearch={handleSearch} isLoading={false} />
           </div>
         )}
@@ -113,7 +113,7 @@ const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="w-full py-6 md:py-8 text-center relative z-10 border-t border-slate-800/50 bg-slate-900/50 backdrop-blur-sm mt-auto">
+      <footer className="w-full py-4 md:py-6 text-center relative z-10 border-t border-slate-800/50 bg-slate-900/50 backdrop-blur-sm mt-auto">
         <div className="flex flex-col items-center gap-3 md:gap-4">
           <div className="flex items-center gap-2 text-slate-400 opacity-80 hover:opacity-100 transition-opacity">
             <Zap className="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-400" />

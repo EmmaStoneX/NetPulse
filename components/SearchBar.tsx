@@ -55,7 +55,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto mb-16 text-center">
+    <div className="w-full max-w-3xl mx-auto mb-8 text-center">
       <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4 md:mb-6 tracking-tight whitespace-nowrap">
         {t('searchBar.heroTitle1')} <span className="gradient-text">{t('searchBar.heroTitle2')}</span>
       </h2>
