@@ -7,7 +7,7 @@ import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { TermsOfService } from './components/TermsOfService';
 import { analyzeEvent } from './services/geminiService';
 import { AnalysisResult, LoadingState, AnalysisMode } from './types';
-import { AlertCircle, Zap } from 'lucide-react';
+import { AlertCircle, Zap, ArrowLeft } from 'lucide-react';
 
 type PageView = 'home' | 'privacy' | 'terms';
 
@@ -41,6 +41,11 @@ const App: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
+  const handleBackToSearch = () => {
+    setStatus(LoadingState.IDLE);
+    window.scrollTo(0, 0);
+  };
+
   // 渲染隐私政策页面
   if (currentPage === 'privacy') {
     return <PrivacyPolicy onBack={() => navigateTo('home')} />;
@@ -51,7 +56,66 @@ const App: React.FC = () => {
     return <TermsOfService onBack={() => navigateTo('home')} />;
   }
 
-  // 渲染主页面
+  // 结果页面 - 使用独立的可滚动布局
+  if (status === LoadingState.COMPLETE && result) {
+    return (
+      <div className="min-h-screen bg-[#0f172a] text-slate-100 selection:bg-blue-500/30">
+        {/* 背景效果 */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-900/10 blur-[120px]" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-900/10 blur-[120px]" />
+        </div>
+
+        {/* 返回按钮 */}
+        <div className="sticky top-0 z-20 bg-[#0f172a]/80 backdrop-blur-sm border-b border-slate-800/50">
+          <div className="container mx-auto px-4 sm:px-6 py-3">
+            <button 
+              onClick={handleBackToSearch}
+              className="text-xs md:text-sm text-slate-400 hover:text-white transition-colors flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800/50"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              {t('result.backToSearch')}
+            </button>
+          </div>
+        </div>
+
+        {/* 结果内容 */}
+        <main className="relative container mx-auto px-4 sm:px-6 py-6">
+          <ResultView data={result} />
+        </main>
+
+        {/* Footer */}
+        <footer className="w-full py-3 md:py-4 text-center relative z-10 border-t border-slate-800/50 bg-slate-900/50 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-2 md:gap-3">
+            <div className="flex items-center gap-2 text-slate-400 opacity-80 hover:opacity-100 transition-opacity">
+              <Zap className="w-3.5 h-3.5 md:w-4 md:h-4 text-blue-400" />
+              <span className="text-xs md:text-sm font-medium tracking-wide">{t('footer.poweredBy')}</span>
+            </div>
+            <p className="text-[10px] md:text-xs text-slate-600 font-medium">
+              {t('footer.copyright', { year: new Date().getFullYear() })}
+            </p>
+            <div className="flex items-center gap-3 md:gap-4 text-[10px] md:text-xs">
+              <button 
+                onClick={() => navigateTo('privacy')}
+                className="text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                {t('footer.privacyPolicy')}
+              </button>
+              <span className="text-slate-700">•</span>
+              <button 
+                onClick={() => navigateTo('terms')}
+                className="text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                {t('footer.termsOfService')}
+              </button>
+            </div>
+          </div>
+        </footer>
+      </div>
+    );
+  }
+
+  // 首页/加载/错误页面 - 使用固定高度居中布局
   return (
     <div className="h-screen bg-[#0f172a] text-slate-100 selection:bg-blue-500/30 flex flex-col overflow-hidden">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -94,20 +158,6 @@ const App: React.FC = () => {
             >
               {t('error.retry')}
             </button>
-          </div>
-        )}
-
-        {status === LoadingState.COMPLETE && result && (
-          <div className="w-full space-y-6 md:space-y-8 lg:space-y-12 overflow-y-auto max-h-full py-4">
-             <div className="flex justify-center">
-               <button 
-                  onClick={() => setStatus(LoadingState.IDLE)}
-                  className="text-xs md:text-sm text-slate-500 hover:text-white transition-colors flex items-center gap-2 px-3 md:px-4 py-2 rounded-full hover:bg-slate-800/50"
-                >
-                  {t('result.backToSearch')}
-                </button>
-             </div>
-            <ResultView data={result} />
           </div>
         )}
       </main>
