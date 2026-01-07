@@ -107,9 +107,6 @@ Add the following secrets in Cloudflare Worker settings:
 | `/api/analyze` | POST | Analyze a query with search grounding |
 | `/api/trending` | GET | Get trending topics (supports `?lang=zh` or `?lang=en`) |
 
-## ⚖️ License
-
-&copy; 2026 Cyberceratops. All rights reserved.
 
 ## 📧 Contact
 
