@@ -7,6 +7,9 @@
 ## 🌍 Introduction
 
 **NetPulse** is an intelligent internet event analyzer powered by search grounding. It transforms scattered web information into structured insights, providing real-time summaries, core impact analysis, and historical context comparisons for major tech and internet events.
+<img width="1920" height="985" alt="image" src="https://github.com/user-attachments/assets/1557c517-4b9b-4b6d-9ede-cb926efaf1d7" />
+
+
 
 **Architecture Upgrade**: NetPulse now uses a **Backend-for-Frontend (BFF)** architecture powered by **Cloudflare Workers**. All API calls (Tavily Search & Gemini Analysis) are executed securely on the server-side, ensuring your API keys are never exposed to the client.
 
