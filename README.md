@@ -1,6 +1,7 @@
 # NetPulse: Event Horizon
 
 [中文](./README_zh.md)
+
 ---
 
 ## 🌍 Introduction
@@ -11,23 +12,47 @@
 
 ## ✨ Key Features
 
+- **Bilingual Support**: Full internationalization (i18n) with Chinese and English interfaces, including language-aware API responses.
 - **Search Grounding**: Utilizes **Tavily API** to fetch real-time, accurate context from the web, reducing hallucinations.
-- **Deep Analysis**: Powered by **Gemini 3 Pro** (via OpenAI-compatible proxy) to generate professional journalistic summaries.
+- **Dual Analysis Modes**: 
+  - **Quick Mode** (~15s): Fast scanning with Gemini 2.5 Flash
+  - **Deep Mode** (~60s): Comprehensive analysis with Gemini 3 Pro
 - **Historical Echoes**: Unique feature that compares current events with historical precedents to find patterns.
 - **Secure Architecture**: API Keys are stored in Cloudflare Worker Secrets. The frontend only communicates with your own backend (`/api/analyze`).
 - **Responsive UI**: A modern, glassmorphism-inspired interface built with **Tailwind CSS**, optimized for mobile and desktop.
+- **Dynamic Trending Topics**: Real-time trending topics fetched and cached by language.
 
 ## 🛠 Tech Stack
 
-- **Frontend**: React 19, TypeScript, Vite
-- **Backend**: Cloudflare Workers (TypeScript)
-- **Styling**: Tailwind CSS, Lucide React (Icons)
-- **AI Model**: Google Gemini 3 Pro Preview (accessed via OpenAI-compatible interface)
-- **Search**: Tavily AI Search API
+| Layer | Technologies |
+|-------|-------------|
+| **Frontend** | React 19, TypeScript, Vite, i18next |
+| **Backend** | Cloudflare Workers (JavaScript) |
+| **Styling** | Tailwind CSS, Lucide React (Icons) |
+| **AI Model** | Google Gemini 3 Pro Preview / Gemini 2.5 Flash |
+| **Search** | Tavily AI Search API |
 
-## 🧱 Build Notes
+## 📁 Project Structure
 
-- Tailwind CSS is loaded via CDN in `index.html`; there is no PostCSS/Tailwind pipeline. Keep the CDN script tag when updating styles to avoid build-time failures caused by missing plugins.
+```
+NetPulse/
+├── App.tsx                 # Main application component
+├── i18n.ts                 # i18next configuration
+├── locales/
+│   ├── zh/translation.json # Chinese translations
+│   └── en/translation.json # English translations
+├── components/
+│   ├── Header.tsx          # Header with language switcher
+│   ├── SearchBar.tsx       # Search interface with trending topics
+│   ├── ResultView.tsx      # Analysis result display
+│   ├── LanguageSwitcher.tsx# Responsive language toggle
+│   ├── PrivacyPolicy.tsx   # Privacy policy page
+│   └── TermsOfService.tsx  # Terms of service page
+├── services/
+│   └── geminiService.ts    # API service layer
+└── backend/
+    └── worker-i18n-v2.js   # Cloudflare Worker backend (latest)
+```
 
 ## 🚀 Getting Started
 
@@ -40,8 +65,8 @@
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/netpulse.git
-   cd netpulse
+   git clone https://github.com/EmmaStoneX/NetPulse.git
+   cd NetPulse
    ```
 
 2. **Install dependencies**
@@ -51,38 +76,42 @@
    bun install
    ```
 
-3. **Local Development (Full Stack)**
-   To run both the frontend and the backend worker locally:
+3. **Local Development**
    ```bash
-   # Start Vite dev server (Frontend)
    npm run dev
    ```
-   *Note: For fully integrated testing including the backend API, use `npx wrangler dev`.*
 
 ## 📦 Deployment
 
-This project is configured as a **Cloudflare Worker** that serves static assets.
+### Frontend (Cloudflare Pages)
 
-1. **Build the Frontend**
-   ```bash
-   npm run build
-   ```
-   This generates the static files in the `dist` directory.
+The frontend auto-deploys via GitHub integration. Simply push to the `main` branch.
 
-2. **Deploy to Cloudflare**
-   ```bash
-   npx wrangler deploy
-   ```
-   *Note: This command uses `wrangler.json` which points to `worker.ts` as the main entry point.*
+### Backend (Cloudflare Workers)
 
-3. **Configure Environment Variables**
-   After deployment, go to the **Cloudflare Dashboard** -> **Workers & Pages** -> Select your Worker -> **Settings** -> **Variables**.
-   Add the following variables (encrypt them as **Secrets**):
-   - `VITE_GEMINI_API_KEY`: Your Gemini/OpenAI-proxy API Key.
-   - `VITE_TAVILY_API_KEY`: Your Tavily API Key.
+1. Go to **Cloudflare Dashboard** → **Workers & Pages** → Your Worker
+2. Click **Edit Code** or **Quick Edit**
+3. **Replace all code** with the content of `backend/worker-i18n-v2.js`
+4. Click **Save and Deploy**
 
-   > **Important**: You must redeploy (Retry deployment) after adding variables for them to take effect.
+### Environment Variables
+
+Add the following secrets in Cloudflare Worker settings:
+- `GEMINI_API_KEY`: Your Gemini/OpenAI-proxy API Key
+- `TAVILY_API_KEY`: Your Tavily API Key
+
+## 🌐 API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/analyze` | POST | Analyze a query with search grounding |
+| `/api/trending` | GET | Get trending topics (supports `?lang=zh` or `?lang=en`) |
 
 ## ⚖️ License
 
-&copy; 2025 Cyberceratops. All rights reserved.
+&copy; 2026 Cyberceratops. All rights reserved.
+
+## 📧 Contact
+
+- Legal inquiries: legal@zxvmax.site
+- Privacy concerns: privacy@zxvmax.site

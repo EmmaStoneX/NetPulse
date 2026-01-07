@@ -1,6 +1,7 @@
 # NetPulse: 事件视界
 
 [English](./README.md)
+
 ---
 
 ## 🌏 简介
@@ -11,23 +12,47 @@
 
 ## ✨ 核心功能
 
+- **双语支持**：完整的国际化 (i18n) 支持，中英文界面自由切换，API 响应也会根据语言自动调整。
 - **搜索增强 (RAG)**：集成 **Tavily API** 获取实时、准确的网络上下文，大幅降低大模型幻觉。
-- **深度分析**：由 **Gemini 3 Pro** 模型驱动（通过 OpenAI 兼容协议调用），生成专业记者级的分析报告。
+- **双模式分析**：
+  - **快速模式** (~15秒)：使用 Gemini 2.5 Flash 快速扫描
+  - **深度模式** (~60秒)：使用 Gemini 3 Pro 深度分析
 - **历史回响**：独创功能，自动将当前事件与历史上的类似事件进行对比，寻找历史的韵脚。
 - **安全架构**：API Key 存储在 Cloudflare Worker 的加密环境变量中。前端仅与自建后端 (`/api/analyze`) 通信。
-- **响应式设计**：基于 **Tailwind CSS** 构建的现代化“玻璃拟态”界面，完美适配手机、平板和桌面端。
+- **响应式设计**：基于 **Tailwind CSS** 构建的现代化"玻璃拟态"界面，完美适配手机、平板和桌面端。
+- **动态热门话题**：实时获取热门话题，按语言分别缓存。
 
 ## 🛠 技术栈
 
-- **前端框架**: React 19, TypeScript, Vite
-- **后端运行时**: Cloudflare Workers (TypeScript)
-- **样式库**: Tailwind CSS, Lucide React (图标)
-- **AI 模型**: Google Gemini 3 Pro Preview (通过 OpenAI 兼容接口访问)
-- **搜索引擎**: Tavily AI Search API
+| 层级 | 技术 |
+|------|-----|
+| **前端** | React 19, TypeScript, Vite, i18next |
+| **后端** | Cloudflare Workers (JavaScript) |
+| **样式** | Tailwind CSS, Lucide React (图标) |
+| **AI 模型** | Google Gemini 3 Pro Preview / Gemini 2.5 Flash |
+| **搜索引擎** | Tavily AI Search API |
 
-## 🧱 构建说明
+## 📁 项目结构
 
-- 在 `index.html` 中通过 CDN 引入 Tailwind CSS，本项目没有 PostCSS/Tailwind 的构建管线。更新样式时请保留该 CDN 脚本标签，避免因为缺少插件导致构建失败。
+```
+NetPulse/
+├── App.tsx                 # 主应用组件
+├── i18n.ts                 # i18next 配置
+├── locales/
+│   ├── zh/translation.json # 中文翻译
+│   └── en/translation.json # 英文翻译
+├── components/
+│   ├── Header.tsx          # 头部（含语言切换器）
+│   ├── SearchBar.tsx       # 搜索界面（含热门话题）
+│   ├── ResultView.tsx      # 分析结果展示
+│   ├── LanguageSwitcher.tsx# 响应式语言切换组件
+│   ├── PrivacyPolicy.tsx   # 隐私政策页面
+│   └── TermsOfService.tsx  # 使用条款页面
+├── services/
+│   └── geminiService.ts    # API 服务层
+└── backend/
+    └── worker-i18n-v2.js   # Cloudflare Worker 后端（最新版）
+```
 
 ## 🚀 快速开始
 
@@ -40,8 +65,8 @@
 
 1. **克隆项目**
    ```bash
-   git clone https://github.com/your-username/netpulse.git
-   cd netpulse
+   git clone https://github.com/EmmaStoneX/NetPulse.git
+   cd NetPulse
    ```
 
 2. **安装依赖**
@@ -51,37 +76,42 @@
    bun install
    ```
 
-3. **本地开发 (全栈)**
-   启动前端开发服务器：
+3. **本地开发**
    ```bash
    npm run dev
    ```
-   *注：若要测试包含后端 API 的完整流程，建议使用 `npx wrangler dev`。*
 
 ## 📦 部署指南
 
-本项目配置为 **Cloudflare Worker** 模式，同时托管静态资源。
+### 前端 (Cloudflare Pages)
 
-1. **构建前端**
-   ```bash
-   npm run build
-   ```
-   这将在 `dist` 目录生成静态文件。
+前端通过 GitHub 集成自动部署，只需推送到 `main` 分支即可。
 
-2. **部署到 Cloudflare**
-   ```bash
-   npx wrangler deploy
-   ```
-   *注：此命令会使用 `wrangler.json` 配置文件，其中指定了 `worker.ts` 为主入口。*
+### 后端 (Cloudflare Workers)
 
-3. **配置环境变量**
-   部署完成后，前往 **Cloudflare 控制台** -> **Workers & Pages** -> 选择你的 Worker -> **设置 (Settings)** -> **变量 (Variables)**。
-   添加以下变量（建议保存为 **加密/Secret** 类型）：
-   - `VITE_GEMINI_API_KEY`: 你的 Gemini 或 OpenAI 中转 API Key。
-   - `VITE_TAVILY_API_KEY`: 你的 Tavily API Key。
+1. 前往 **Cloudflare 控制台** → **Workers & Pages** → 你的 Worker
+2. 点击 **Edit Code** 或 **Quick Edit**
+3. **全选并替换**为 `backend/worker-i18n-v2.js` 的内容
+4. 点击 **Save and Deploy**
 
-   > **重要提示**: 添加变量后，请务必在控制台点击“重试部署 (Retry deployment)”或重新运行部署命令，以使变量生效。
+### 环境变量配置
 
-## ⚖️ License
+在 Cloudflare Worker 设置中添加以下密钥：
+- `GEMINI_API_KEY`: 你的 Gemini 或 OpenAI 中转 API Key
+- `TAVILY_API_KEY`: 你的 Tavily API Key
 
-&copy; 2025 Cyberceratops. All rights reserved.
+## 🌐 API 接口
+
+| 接口 | 方法 | 描述 |
+|-----|------|-----|
+| `/api/analyze` | POST | 基于搜索增强分析查询 |
+| `/api/trending` | GET | 获取热门话题（支持 `?lang=zh` 或 `?lang=en`） |
+
+## ⚖️ 许可证
+
+&copy; 2026 Cyberceratops. 保留所有权利。
+
+## 📧 联系方式
+
+- 法律事务: legal@zxvmax.site
+- 隐私问题: privacy@zxvmax.site
