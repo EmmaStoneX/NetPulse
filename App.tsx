@@ -51,12 +51,9 @@ const App: React.FC = () => {
     return <TermsOfService onBack={() => navigateTo('home')} />;
   }
 
-  // 首页状态（IDLE）使用固定高度居中布局
-  const isHomePage = status === LoadingState.IDLE || status === LoadingState.SEARCHING || status === LoadingState.ERROR;
-  
   // 渲染主页面
   return (
-    <div className={`${isHomePage ? 'h-screen overflow-hidden' : 'min-h-screen'} bg-[#0f172a] text-slate-100 selection:bg-blue-500/30 flex flex-col`}>
+    <div className="h-screen bg-[#0f172a] text-slate-100 selection:bg-blue-500/30 flex flex-col overflow-hidden">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-900/10 blur-[120px]" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-900/10 blur-[120px]" />
@@ -64,7 +61,7 @@ const App: React.FC = () => {
 
       <Header isLoading={status === LoadingState.SEARCHING} />
 
-      <main className={`relative container mx-auto px-4 sm:px-6 flex-1 ${isHomePage ? 'flex items-center justify-center' : 'py-6'}`}>
+      <main className="relative container mx-auto px-4 sm:px-6 flex-1 flex items-center justify-center">
         {status === LoadingState.IDLE && (
           <div className="animate-in fade-in zoom-in duration-700 w-full">
             <SearchBar onSearch={handleSearch} isLoading={false} />
@@ -101,7 +98,7 @@ const App: React.FC = () => {
         )}
 
         {status === LoadingState.COMPLETE && result && (
-          <div className="w-full space-y-6 md:space-y-8 lg:space-y-12">
+          <div className="w-full space-y-6 md:space-y-8 lg:space-y-12 overflow-y-auto max-h-full py-4">
              <div className="flex justify-center">
                <button 
                   onClick={() => setStatus(LoadingState.IDLE)}
