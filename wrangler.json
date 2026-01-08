@@ -1,6 +1,6 @@
 
 {
-  "name": "netpulse-event-horizon",
+  "name": "netpulse",
   "compatibility_date": "2025-12-02",
   "main": "backend/worker-i18n-v2.js",
   "assets": {
