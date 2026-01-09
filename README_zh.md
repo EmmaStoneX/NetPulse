@@ -7,7 +7,9 @@
 ## 🌏 简介
 
 **NetPulse: 事件视界** 是一款基于搜索增强生成的智能互联网事件分析器。它能将零散的网络信息转化为结构化的深度洞察，为重大的科技与互联网事件提供实时摘要、核心影响分析以及历史镜像对比。
-<img width="1920" height="983" alt="image" src="https://github.com/user-attachments/assets/ad3db829-d8e2-493e-8f3a-80e39f11af47" />
+<p align="center">
+  <img src="https://img.0rzz.ggff.net/netpulse-chs.png" alt="NetPulse 界面预览" width="100%">
+</p>
 
 
 **架构升级**: 本项目现已采用基于 **Cloudflare Workers** 的 **BFF (Backend-for-Frontend)** 架构。所有的 API 调用（Tavily 搜索和 Gemini 分析）均在服务端安全执行，彻底杜绝了 API Key 在前端泄露的风险。
