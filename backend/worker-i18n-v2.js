@@ -10,6 +10,9 @@ let trendingCacheZh = null;
 let trendingCacheEn = null;
 const CACHE_TTL = 3600 * 1000; // 1 hour
 
+// Tavily API Key 轮询索引
+let tavilyKeyIndex = 0;
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
@@ -81,6 +84,45 @@ const DEFAULT_TOPICS = {
   zh: ["最新科技趋势", "AI模型更新", "网络安全", "全球互联网"],
   en: ["Latest Tech Trends", "AI Model Updates", "Cybersecurity", "Global Internet"]
 };
+
+// ============================================
+// Tavily API Key 轮询管理
+// ============================================
+function getTavilyKeys(env) {
+  const keys = [];
+  
+  // 支持 TAVILY_API_KEY_1, TAVILY_API_KEY_2, ... 格式
+  for (let i = 1; i <= 10; i++) {
+    const key = env[`TAVILY_API_KEY_${i}`];
+    if (key) {
+      keys.push(key);
+    }
+  }
+  
+  // 如果没有配置多个 key，回退到单个 key
+  if (keys.length === 0) {
+    const singleKey = env.VITE_TAVILY_API_KEY || env.TAVILY_API_KEY;
+    if (singleKey) {
+      keys.push(singleKey);
+    }
+  }
+  
+  return keys;
+}
+
+function getNextTavilyKey(env) {
+  const keys = getTavilyKeys(env);
+  if (keys.length === 0) {
+    return null;
+  }
+  
+  // Round-Robin 轮询
+  const key = keys[tavilyKeyIndex % keys.length];
+  tavilyKeyIndex = (tavilyKeyIndex + 1) % keys.length;
+  
+  console.log(`[Tavily] Using key index: ${(tavilyKeyIndex === 0 ? keys.length : tavilyKeyIndex) - 1} of ${keys.length}`);
+  return key;
+}
 
 // ============================================
 // 安全的 fetch 包装函数（处理 SSL 错误）
@@ -164,7 +206,7 @@ export default {
 async function handleAnalyze(request, env) {
   try {
     const geminiKey = env.VITE_GEMINI_API_KEY || env.GEMINI_API_KEY;
-    const tavilyKey = env.VITE_TAVILY_API_KEY || env.TAVILY_API_KEY;
+    const tavilyKey = getNextTavilyKey(env);
     
     if (!geminiKey || !tavilyKey) {
       const missing = [];
@@ -308,7 +350,7 @@ async function handleTrending(request, env) {
     console.log(`[Trending] Fetching fresh topics for lang=${lang}`);
     
     const geminiKey = env.VITE_GEMINI_API_KEY || env.GEMINI_API_KEY;
-    const tavilyKey = env.VITE_TAVILY_API_KEY || env.TAVILY_API_KEY;
+    const tavilyKey = getNextTavilyKey(env);
     
     if (!geminiKey || !tavilyKey) {
       console.error("[Trending] Missing API keys");
