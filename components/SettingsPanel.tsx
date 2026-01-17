@@ -130,14 +130,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
 
   const modalContent = (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="settings-modal-title"
     >
       <div
-        className="w-full max-w-md bg-slate-900 rounded-2xl border border-slate-700/50 shadow-2xl animate-in zoom-in-95 duration-200"
+        className="w-full max-w-md bg-slate-900 rounded-2xl border border-slate-700/50 shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto"
         onClick={(e: React.MouseEvent) => e.stopPropagation()}
       >
         {/* Header */}
@@ -158,7 +158,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
         </div>
 
         {/* Content */}
-        <div className="p-4 space-y-5">
+        <div className="p-3 sm:p-4 space-y-4 sm:space-y-5">
           {/* Enable Toggle */}
           <div className="flex items-center justify-between">
             <div>
@@ -315,7 +315,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-700/50 flex gap-3">
+        <div className="p-3 sm:p-4 border-t border-slate-700/50 flex gap-2 sm:gap-3">
           <button
             onClick={handleClear}
             className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-red-400 hover:bg-red-500/10 border border-red-500/30 transition-colors"

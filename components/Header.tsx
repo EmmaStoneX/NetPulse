@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Activity, Menu, X, Settings } from 'lucide-react';
+import { Activity, Menu, X, Settings, Github } from 'lucide-react';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { SettingsPanel } from './SettingsPanel';
 
@@ -45,13 +45,24 @@ export const Header: React.FC<HeaderProps> = ({ isLoading = false }) => {
         </div>
         <div className="w-px h-6 bg-slate-700"></div>
         <LanguageSwitcher />
-        <button
-          onClick={() => setIsSettingsOpen(true)}
-          className="p-2 text-slate-400 hover:text-white transition-colors"
-          aria-label={t('settings.title')}
-        >
-          <Settings className="w-5 h-5" />
-        </button>
+        <div className="flex items-center">
+          <a
+            href="https://github.com/EmmaStoneX/NetPulse/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 text-slate-400 hover:text-white transition-colors"
+            aria-label="GitHub"
+          >
+            <Github className="w-5 h-5" />
+          </a>
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            className="p-2 text-slate-400 hover:text-white transition-colors"
+            aria-label={t('settings.title')}
+          >
+            <Settings className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       {/* 移动端：汉堡菜单按钮 */}
@@ -68,13 +79,24 @@ export const Header: React.FC<HeaderProps> = ({ isLoading = false }) => {
           )}
         </div>
         <LanguageSwitcher />
-        <button
-          onClick={() => setIsSettingsOpen(true)}
-          className="p-2 text-slate-400 hover:text-white transition-colors"
-          aria-label={t('settings.title')}
-        >
-          <Settings className="w-5 h-5" />
-        </button>
+        <div className="flex items-center">
+          <a
+            href="https://github.com/EmmaStoneX/NetPulse/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 text-slate-400 hover:text-white transition-colors"
+            aria-label="GitHub"
+          >
+            <Github className="w-5 h-5" />
+          </a>
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            className="p-2 text-slate-400 hover:text-white transition-colors"
+            aria-label={t('settings.title')}
+          >
+            <Settings className="w-5 h-5" />
+          </button>
+        </div>
         <button 
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="p-2 text-slate-400 hover:text-white transition-colors"
