@@ -113,7 +113,12 @@ This project uses a unified deployment approach via **Cloudflare Workers with St
 
 Add the following secrets in Cloudflare Worker settings (**Settings** → **Variables and Secrets**):
 - `GEMINI_API_KEY`: Your Gemini/OpenAI-proxy API Key
-- `TAVILY_API_KEY`: Your Tavily API Key
+- `TAVILY_API_KEY_1`: Your first Tavily API Key
+- `TAVILY_API_KEY_2`: Your second Tavily API Key (optional)
+- `TAVILY_API_KEY_3`: Your third Tavily API Key (optional)
+- ... up to `TAVILY_API_KEY_10`
+
+> **Multi-Key Support**: NetPulse supports up to 10 Tavily API keys with automatic round-robin load balancing. This helps distribute API usage across multiple keys to avoid rate limits. If you only have one key, just configure `TAVILY_API_KEY_1`.
 
 ### KV Namespace (for Share Links)
 

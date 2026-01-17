@@ -112,7 +112,12 @@ NetPulse/
 
 在 Cloudflare Worker 设置中添加以下密钥（**设置** → **变量和机密**）：
 - `GEMINI_API_KEY`: 你的 Gemini 或 OpenAI 中转 API Key
-- `TAVILY_API_KEY`: 你的 Tavily API Key
+- `TAVILY_API_KEY_1`: 你的第一个 Tavily API Key
+- `TAVILY_API_KEY_2`: 你的第二个 Tavily API Key（可选）
+- `TAVILY_API_KEY_3`: 你的第三个 Tavily API Key（可选）
+- ... 最多支持到 `TAVILY_API_KEY_10`
+
+> **多 Key 轮询**：NetPulse 支持配置最多 10 个 Tavily API Key，自动进行 Round-Robin 负载均衡。这有助于分散 API 调用量，避免单个 Key 触发速率限制。如果你只有一个 Key，配置 `TAVILY_API_KEY_1` 即可。
 
 ### KV 命名空间（用于分享链接）
 
