@@ -30,7 +30,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
   const [generatedUrl, setGeneratedUrl] = useState('');
 
   // Generate share URL when options change
-  const generateUrl = useCallback(() => {
+  const generateUrl = useCallback(async () => {
     const options: ShareOptions = {
       includeQuery,
       customTitle: customTitle.trim() || undefined,
@@ -38,7 +38,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     };
     
     const shareData = createShareData(analysisResult, query, options);
-    const url = generateShareUrl(shareData);
+    const url = await generateShareUrl(shareData);
     
     if (url) {
       setGeneratedUrl(url);

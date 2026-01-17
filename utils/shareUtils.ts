@@ -193,17 +193,36 @@ export function decodeShareData(encodedData: string): SharedAnalysisData | null 
 }
 
 /**
- * 生成分享链接
+ * 生成分享链接（使用后端 KV 存储）
  */
-export function generateShareUrl(data: SharedAnalysisData): string | null {
+export async function generateShareUrl(data: SharedAnalysisData): Promise<string | null> {
   // 检查速率限制
   if (!checkRateLimit()) {
     return null;
   }
   
-  const encoded = encodeShareData(data);
-  const baseUrl = window.location.origin + window.location.pathname;
-  return `${baseUrl}#/shared?data=${encoded}`;
+  try {
+    const response = await fetch('/api/share', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    
+    if (!response.ok) {
+      console.error('Failed to create share link:', response.status);
+      return null;
+    }
+    
+    const result = await response.json();
+    const baseUrl = window.location.origin + window.location.pathname;
+    return `${baseUrl}#/s/${result.id}`;
+  } catch (error) {
+    console.error('Error creating share link:', error);
+    // 降级到本地编码方式
+    const encoded = encodeShareData(data);
+    const baseUrl = window.location.origin + window.location.pathname;
+    return `${baseUrl}#/shared?data=${encoded}`;
+  }
 }
 
 /**
@@ -211,6 +230,14 @@ export function generateShareUrl(data: SharedAnalysisData): string | null {
  */
 export function parseShareUrl(url: string): SharedAnalysisData | null {
   try {
+    // 新格式: #/s/:id (短链接)
+    const shortMatch = url.match(/#\/s\/([a-zA-Z0-9]{8})/);
+    if (shortMatch) {
+      // 短链接需要异步获取，这里返回 null，由调用方使用 fetchShareData
+      return null;
+    }
+    
+    // 旧格式: #/shared?data=xxx (兼容)
     const hashIndex = url.indexOf('#/shared?data=');
     if (hashIndex === -1) return null;
     
@@ -219,6 +246,50 @@ export function parseShareUrl(url: string): SharedAnalysisData | null {
     
     return decodeShareData(encodedData);
   } catch {
+    return null;
+  }
+}
+
+/**
+ * 从后端获取分享数据
+ */
+export async function fetchShareData(shareId: string): Promise<SharedAnalysisData | null> {
+  try {
+    const response = await fetch(`/api/share/${shareId}`);
+    
+    if (!response.ok) {
+      console.error('Failed to fetch share data:', response.status);
+      return null;
+    }
+    
+    const data = await response.json();
+    
+    // 验证数据结构
+    if (!validateShareData(data)) {
+      return null;
+    }
+    
+    // 清理数据防止 XSS
+    return {
+      version: data.version,
+      timestamp: data.timestamp,
+      analysisResult: sanitizeAnalysisResult(data.analysisResult),
+      shareOptions: {
+        includeQuery: data.shareOptions.includeQuery,
+        includeSources: data.shareOptions.includeSources,
+        customTitle: data.shareOptions.customTitle 
+          ? sanitizeString(data.shareOptions.customTitle) 
+          : undefined,
+      },
+      originalQuery: data.originalQuery 
+        ? sanitizeString(data.originalQuery) 
+        : undefined,
+      customTitle: data.customTitle 
+        ? sanitizeString(data.customTitle) 
+        : undefined,
+    };
+  } catch (error) {
+    console.error('Error fetching share data:', error);
     return null;
   }
 }
@@ -245,7 +316,16 @@ export function createShareData(
  * 检查当前 URL 是否为分享链接
  */
 export function isShareUrl(): boolean {
-  return window.location.hash.startsWith('#/shared?data=');
+  const hash = window.location.hash;
+  return hash.startsWith('#/shared?data=') || /^#\/s\/[a-zA-Z0-9]{8}$/.test(hash);
+}
+
+/**
+ * 获取短链接 ID（如果是短链接格式）
+ */
+export function getShortShareId(): string | null {
+  const match = window.location.hash.match(/^#\/s\/([a-zA-Z0-9]{8})$/);
+  return match ? match[1] : null;
 }
 
 /**

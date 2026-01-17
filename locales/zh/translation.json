@@ -63,7 +63,8 @@
     "startNewButton": "开始新分析",
     "errorTitle": "无效的分享链接",
     "errorDescription": "此分享链接无效或已过期。数据可能已损坏。",
-    "backToHome": "返回首页"
+    "backToHome": "返回首页",
+    "loading": "正在加载分享内容..."
   },
   "footer": {
     "poweredBy": "Powered by Google Gemini",

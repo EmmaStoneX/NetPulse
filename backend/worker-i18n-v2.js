@@ -126,7 +126,18 @@ export default {
       return handleTrending(request, env);
     }
     
-    // 4. 静态资源（默认）
+    // 4. API 路由: POST /api/share - 存储分享数据
+    if (url.pathname === "/api/share" && request.method === "POST") {
+      return handleShareCreate(request, env);
+    }
+    
+    // 5. API 路由: GET /api/share/:id - 获取分享数据
+    if (url.pathname.startsWith("/api/share/") && request.method === "GET") {
+      const shareId = url.pathname.replace("/api/share/", "");
+      return handleShareGet(shareId, env);
+    }
+    
+    // 6. 静态资源（默认）
     try {
       const response = await env.ASSETS.fetch(request);
       if (response.status === 404 && url.pathname.endsWith("favicon.ico")) {
@@ -390,4 +401,117 @@ async function handleTrending(request, env) {
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   }
+}
+
+
+// ============================================
+// 分享功能 - 创建分享链接
+// ============================================
+async function handleShareCreate(request, env) {
+  try {
+    // 检查 KV 绑定
+    if (!env.SHARE_DATA) {
+      return new Response(JSON.stringify({ error: "Share service not configured" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+    
+    const data = await request.json();
+    
+    // 验证必需字段
+    if (!data.analysisResult || !data.shareOptions) {
+      return new Response(JSON.stringify({ error: "Invalid share data" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+    
+    // 生成短 ID (8 字符)
+    const shareId = generateShortId();
+    
+    // 添加元数据
+    const shareData = {
+      ...data,
+      id: shareId,
+      createdAt: Date.now()
+    };
+    
+    // 存储到 KV，设置 30 天过期
+    await env.SHARE_DATA.put(shareId, JSON.stringify(shareData), {
+      expirationTtl: 30 * 24 * 60 * 60 // 30 days in seconds
+    });
+    
+    return new Response(JSON.stringify({ 
+      id: shareId,
+      expiresIn: "30 days"
+    }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
+    
+  } catch (error) {
+    console.error("[Share Create] Error:", error);
+    return new Response(JSON.stringify({ error: "Failed to create share link" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
+  }
+}
+
+// ============================================
+// 分享功能 - 获取分享数据
+// ============================================
+async function handleShareGet(shareId, env) {
+  try {
+    // 检查 KV 绑定
+    if (!env.SHARE_DATA) {
+      return new Response(JSON.stringify({ error: "Share service not configured" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+    
+    // 验证 ID 格式
+    if (!shareId || shareId.length !== 8 || !/^[a-zA-Z0-9]+$/.test(shareId)) {
+      return new Response(JSON.stringify({ error: "Invalid share ID" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+    
+    // 从 KV 获取数据
+    const data = await env.SHARE_DATA.get(shareId);
+    
+    if (!data) {
+      return new Response(JSON.stringify({ error: "Share not found or expired" }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+    
+    return new Response(data, {
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
+    
+  } catch (error) {
+    console.error("[Share Get] Error:", error);
+    return new Response(JSON.stringify({ error: "Failed to retrieve share data" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
+  }
+}
+
+// ============================================
+// 生成短 ID (8 字符，URL 安全)
+// ============================================
+function generateShortId() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  let result = '';
+  const randomValues = new Uint8Array(8);
+  crypto.getRandomValues(randomValues);
+  for (let i = 0; i < 8; i++) {
+    result += chars[randomValues[i] % chars.length];
+  }
+  return result;
 }

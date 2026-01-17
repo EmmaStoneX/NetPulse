@@ -13,6 +13,8 @@ import { AnalysisResult, LoadingState, AnalysisMode } from './types';
 import { 
   isShareUrl, 
   getShareDataFromCurrentUrl, 
+  getShortShareId,
+  fetchShareData,
   SharedAnalysisData 
 } from './utils/shareUtils';
 import { AlertCircle, Zap, ArrowLeft, Share2, Home } from 'lucide-react';
@@ -29,17 +31,34 @@ const App: React.FC = () => {
   const [currentQuery, setCurrentQuery] = useState<string>('');
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [sharedData, setSharedData] = useState<SharedAnalysisData | null>(null);
+  const [isLoadingShare, setIsLoadingShare] = useState(false);
 
   // Handle URL hash changes for share links
   useEffect(() => {
-    const handleHashChange = () => {
+    const handleHashChange = async () => {
       if (isShareUrl()) {
-        const data = getShareDataFromCurrentUrl();
-        if (data) {
-          setSharedData(data);
+        // 检查是否是短链接格式
+        const shortId = getShortShareId();
+        if (shortId) {
+          // 短链接：从后端获取数据
+          setIsLoadingShare(true);
           setCurrentPage('shared');
+          const data = await fetchShareData(shortId);
+          setIsLoadingShare(false);
+          if (data) {
+            setSharedData(data);
+          } else {
+            setCurrentPage('shared-error');
+          }
         } else {
-          setCurrentPage('shared-error');
+          // 旧格式：本地解码
+          const data = getShareDataFromCurrentUrl();
+          if (data) {
+            setSharedData(data);
+            setCurrentPage('shared');
+          } else {
+            setCurrentPage('shared-error');
+          }
         }
       } else if (window.location.hash === '' || window.location.hash === '#/') {
         // Only reset to home if we were on a shared page
@@ -143,6 +162,26 @@ const App: React.FC = () => {
         sharedData={sharedData} 
         onStartNewAnalysis={navigateToHome} 
       />
+    );
+  }
+
+  // Render loading state for share data
+  if (currentPage === 'shared' && isLoadingShare) {
+    return (
+      <div className="min-h-screen bg-[#0f172a] text-slate-100 selection:bg-blue-500/30 flex flex-col">
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-900/10 blur-[120px]" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-900/10 blur-[120px]" />
+        </div>
+        <main className="relative container mx-auto px-4 sm:px-6 flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="relative mx-auto w-16 h-16">
+              <div className="absolute inset-0 border-t-4 border-blue-500 rounded-full animate-spin"></div>
+            </div>
+            <p className="mt-4 text-slate-400">{t('sharedView.loading')}</p>
+          </div>
+        </main>
+      </div>
     );
   }
 

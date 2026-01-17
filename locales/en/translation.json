@@ -63,7 +63,8 @@
     "startNewButton": "Start New Analysis",
     "errorTitle": "Invalid Share Link",
     "errorDescription": "This share link is invalid or has expired. The data may be corrupted.",
-    "backToHome": "Back to Home"
+    "backToHome": "Back to Home",
+    "loading": "Loading shared analysis..."
   },
   "footer": {
     "poweredBy": "Powered by Google Gemini",
