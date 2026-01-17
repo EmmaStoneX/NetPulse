@@ -27,8 +27,8 @@ export const Header: React.FC<HeaderProps> = ({ isLoading = false }) => {
       </div>
 
       {/* 桌面端：状态信息和语言切换 */}
-      <div className="hidden md:flex items-center gap-4">
-        <div className="flex items-center gap-4 text-sm font-medium text-slate-400">
+      <div className="hidden md:flex items-center gap-3">
+        <div className="flex items-center gap-3 text-sm font-medium text-slate-400">
           <span>{t('header.realTimeAnalysis')}</span>
           {/* 绿色呼吸灯指示器 */}
           <div className="relative flex items-center justify-center">
@@ -43,9 +43,9 @@ export const Header: React.FC<HeaderProps> = ({ isLoading = false }) => {
           </div>
           <span>{t('header.searchEnabled')}</span>
         </div>
-        <div className="w-px h-6 bg-slate-700"></div>
+        <div className="w-px h-5 bg-slate-700"></div>
         <LanguageSwitcher />
-        <div className="flex items-center">
+        <div className="flex items-center -ml-1">
           <a
             href="https://github.com/EmmaStoneX/NetPulse/"
             target="_blank"
