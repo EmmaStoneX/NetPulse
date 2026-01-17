@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Activity, Menu, X } from 'lucide-react';
+import { Activity, Menu, X, Settings } from 'lucide-react';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { SettingsPanel } from './SettingsPanel';
 
 interface HeaderProps {
   isLoading?: boolean;
@@ -10,6 +11,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ isLoading = false }) => {
   const { t } = useTranslation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   return (
     <header className="w-full py-4 md:py-6 px-4 md:px-8 flex items-center justify-between border-b border-slate-800/50 bg-slate-900/50 backdrop-blur-sm sticky top-0 z-50">
@@ -43,6 +45,13 @@ export const Header: React.FC<HeaderProps> = ({ isLoading = false }) => {
         </div>
         <div className="w-px h-6 bg-slate-700"></div>
         <LanguageSwitcher />
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="p-2 text-slate-400 hover:text-white transition-colors"
+          aria-label={t('settings.title')}
+        >
+          <Settings className="w-5 h-5" />
+        </button>
       </div>
 
       {/* 移动端：汉堡菜单按钮 */}
@@ -59,6 +68,13 @@ export const Header: React.FC<HeaderProps> = ({ isLoading = false }) => {
           )}
         </div>
         <LanguageSwitcher />
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="p-2 text-slate-400 hover:text-white transition-colors"
+          aria-label={t('settings.title')}
+        >
+          <Settings className="w-5 h-5" />
+        </button>
         <button 
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="p-2 text-slate-400 hover:text-white transition-colors"
@@ -92,6 +108,9 @@ export const Header: React.FC<HeaderProps> = ({ isLoading = false }) => {
           </div>
         </div>
       )}
+
+      {/* Settings Panel Modal - 使用 Portal 渲染到 body */}
+      {isSettingsOpen && <SettingsPanel isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />}
     </header>
   );
 };

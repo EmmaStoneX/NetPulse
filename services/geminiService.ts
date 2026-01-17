@@ -1,5 +1,7 @@
 import { AnalysisResult, AnalysisMode } from "../types";
 import i18n from "../i18n";
+import { apiConfigStore } from "../utils/apiConfigStore";
+import { analyzeWithCustomKeys } from "./directApiService";
 
 /**
  * Parses the structured text response into a usable object.
@@ -40,6 +42,13 @@ const getCurrentLang = (): 'zh' | 'en' => {
 
 export const analyzeEvent = async (query: string, mode: AnalysisMode): Promise<AnalysisResult> => {
   try {
+    // Check if user has custom API configuration enabled
+    if (apiConfigStore.hasCustomConfig()) {
+      const config = apiConfigStore.get();
+      return await analyzeWithCustomKeys(query, mode, config);
+    }
+
+    // Use default backend proxy mode
     const lang = getCurrentLang();
     
     const response = await fetch("/api/analyze", {
