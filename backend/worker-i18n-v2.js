@@ -362,15 +362,21 @@ async function handleTrending(request, env) {
     // 获取科技新闻 - 使用 safeFetch 处理可能的 SSL 错误
     let newsContext = "";
     try {
+      // 根据语言使用不同的搜索关键词，确保聚焦科技领域
+      const searchQuery = lang === 'zh' 
+        ? "AI人工智能 科技新闻 技术突破 互联网"
+        : "AI artificial intelligence technology breakthrough startup";
+      
       const tavilyResponse = await safeFetch("https://api.tavily.com/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           api_key: tavilyKey,
-          query: "important tech news today",
+          query: searchQuery,
           topic: "news",
           days: 1,
-          max_results: 5
+          max_results: 8,
+          include_domains: ["techcrunch.com", "theverge.com", "wired.com", "arstechnica.com", "36kr.com", "ithome.com", "cnbeta.com", "engadget.com", "zdnet.com", "venturebeat.com"]
         })
       }, 1); // 只重试 1 次
       
