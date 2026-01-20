@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './i18n'; // 导入 i18n 配置
+import './src/index.css'; // 导入 Tailwind CSS
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
