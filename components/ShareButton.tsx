@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Share2, Loader2 } from 'lucide-react';
 import { AnalysisResult } from '../types';
+import { cn } from '../utils/cn';
 
 interface ShareButtonProps {
   analysisResult: AnalysisResult;
@@ -24,7 +25,6 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
     try {
       onShareClick();
     } finally {
-      // Brief loading state for visual feedback
       setTimeout(() => setIsLoading(false), 300);
     }
   };
@@ -34,12 +34,12 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
       onClick={handleClick}
       disabled={isLoading}
       aria-label={t('share.button')}
-      className={`
-        text-xs md:text-sm text-slate-400 hover:text-white transition-colors 
-        flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800/50
-        disabled:opacity-50 disabled:cursor-not-allowed
-        ${className}
-      `}
+      className={cn(
+        "text-xs md:text-sm transition-colors flex items-center gap-2 px-3 py-2 rounded-lg",
+        "text-muted-foreground hover:text-foreground hover:bg-secondary/50",
+        "disabled:opacity-50 disabled:cursor-not-allowed",
+        className
+      )}
     >
       {isLoading ? (
         <Loader2 className="w-4 h-4 animate-spin" />

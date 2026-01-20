@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Globe, ChevronDown } from 'lucide-react';
+import { cn } from '../utils/cn';
 
 export const LanguageSwitcher: React.FC = () => {
   const { i18n, t } = useTranslation();
@@ -12,7 +13,6 @@ export const LanguageSwitcher: React.FC = () => {
     setIsOpen(false);
   };
 
-  // 点击外部关闭下拉菜单
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -30,33 +30,39 @@ export const LanguageSwitcher: React.FC = () => {
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 text-sm font-medium text-slate-400 hover:text-slate-200 transition-colors px-2 py-1.5 rounded-md hover:bg-slate-800/50"
+        className={cn(
+          "flex items-center gap-1.5 text-sm font-medium transition-colors",
+          "text-muted-foreground hover:text-foreground",
+          "px-2 py-1.5 rounded-md hover:bg-secondary/50"
+        )}
         aria-label="Switch language"
       >
         <Globe className="w-4 h-4" />
         <span className="hidden sm:inline">{currentLangText}</span>
-        <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={cn("w-3 h-3 transition-transform duration-200", isOpen && 'rotate-180')} />
       </button>
       
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 w-28 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute top-full right-0 mt-2 w-28 bg-card border border-border rounded-lg shadow-xl z-50 overflow-hidden animate-fade-in">
           <button 
             onClick={() => changeLanguage('zh')} 
-            className={`block w-full text-left px-4 py-2.5 text-sm transition-colors ${
+            className={cn(
+              "block w-full text-left px-4 py-2.5 text-sm transition-colors",
               currentLang === 'zh' 
-                ? 'bg-blue-600/20 text-blue-400' 
-                : 'text-slate-300 hover:bg-slate-700'
-            }`}
+                ? 'bg-primary/20 text-primary' 
+                : 'text-foreground hover:bg-secondary'
+            )}
           >
             中文
           </button>
           <button 
             onClick={() => changeLanguage('en')} 
-            className={`block w-full text-left px-4 py-2.5 text-sm transition-colors ${
+            className={cn(
+              "block w-full text-left px-4 py-2.5 text-sm transition-colors",
               currentLang === 'en' 
-                ? 'bg-blue-600/20 text-blue-400' 
-                : 'text-slate-300 hover:bg-slate-700'
-            }`}
+                ? 'bg-primary/20 text-primary' 
+                : 'text-foreground hover:bg-secondary'
+            )}
           >
             English
           </button>
