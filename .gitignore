@@ -25,3 +25,6 @@ dist-ssr
 
 # Kiro
 .kiro
+
+# Documentation (local only)
+docs/

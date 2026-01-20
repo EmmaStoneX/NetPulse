@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { X, Share2, Copy, Check, AlertCircle, Eye } from 'lucide-react';
 import { AnalysisResult } from '../types';
 import { ShareOptions, createShareData, generateShareUrl } from '../utils/shareUtils';
+import { cn } from '../utils/cn';
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -19,17 +20,14 @@ export const ShareModal: React.FC<ShareModalProps> = ({
 }) => {
   const { t } = useTranslation();
   
-  // Share options state
   const [includeQuery, setIncludeQuery] = useState(true);
   const [customTitle, setCustomTitle] = useState('');
   const [includeSources, setIncludeSources] = useState(true);
   
-  // UI state
   const [copyStatus, setCopyStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [generatedUrl, setGeneratedUrl] = useState('');
 
-  // Generate share URL when options change
   const generateUrl = useCallback(async () => {
     const options: ShareOptions = {
       includeQuery,
@@ -49,14 +47,12 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     }
   }, [includeQuery, customTitle, includeSources, analysisResult, query, t]);
 
-  // Update URL when options change
   useEffect(() => {
     if (isOpen) {
       generateUrl();
     }
   }, [isOpen, generateUrl]);
 
-  // Handle copy to clipboard
   const handleCopy = async () => {
     if (!generatedUrl) {
       setErrorMessage(t('share.generateError'));
@@ -69,7 +65,6 @@ export const ShareModal: React.FC<ShareModalProps> = ({
       setCopyStatus('success');
       setTimeout(() => setCopyStatus('idle'), 2000);
     } catch {
-      // Fallback for browsers without clipboard API
       try {
         const textArea = document.createElement('textarea');
         textArea.value = generatedUrl;
@@ -89,7 +84,6 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     }
   };
 
-  // Handle escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
@@ -101,7 +95,6 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
-  // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -115,32 +108,31 @@ export const ShareModal: React.FC<ShareModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Preview display title
   const previewTitle = customTitle.trim() || (includeQuery ? query : t('share.sharedAnalysis'));
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f172a]/80 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-fade-in"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="share-modal-title"
     >
       <div 
-        className="w-full max-w-md glass-panel rounded-2xl border border-slate-700/50 shadow-2xl animate-in zoom-in-95 duration-200"
+        className="w-full max-w-md bg-card rounded-2xl border border-border shadow-2xl animate-fade-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-700/50">
+        <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center gap-2">
-            <Share2 className="w-5 h-5 text-blue-400" />
-            <h2 id="share-modal-title" className="text-lg font-bold text-white">
+            <Share2 className="w-5 h-5 text-primary" />
+            <h2 id="share-modal-title" className="text-lg font-bold text-foreground">
               {t('share.modalTitle')}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/50 transition-colors"
+            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors"
             aria-label={t('share.close')}
           >
             <X className="w-5 h-5" />
@@ -151,7 +143,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         <div className="p-4 space-y-4">
           {/* Include Query Toggle */}
           <div className="flex items-center justify-between">
-            <label htmlFor="include-query" className="text-sm text-slate-300">
+            <label htmlFor="include-query" className="text-sm text-foreground">
               {t('share.includeQuery')}
             </label>
             <button
@@ -159,21 +151,23 @@ export const ShareModal: React.FC<ShareModalProps> = ({
               role="switch"
               aria-checked={includeQuery}
               onClick={() => setIncludeQuery(!includeQuery)}
-              className={`relative w-11 h-6 rounded-full transition-colors ${
-                includeQuery ? 'bg-blue-500' : 'bg-slate-600'
-              }`}
+              className={cn(
+                "relative w-11 h-6 rounded-full transition-colors",
+                includeQuery ? 'bg-primary' : 'bg-secondary'
+              )}
             >
               <span
-                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
+                className={cn(
+                  "absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform",
                   includeQuery ? 'translate-x-5' : 'translate-x-0'
-                }`}
+                )}
               />
             </button>
           </div>
 
           {/* Include Sources Toggle */}
           <div className="flex items-center justify-between">
-            <label htmlFor="include-sources" className="text-sm text-slate-300">
+            <label htmlFor="include-sources" className="text-sm text-foreground">
               {t('share.includeSources')}
             </label>
             <button
@@ -181,21 +175,23 @@ export const ShareModal: React.FC<ShareModalProps> = ({
               role="switch"
               aria-checked={includeSources}
               onClick={() => setIncludeSources(!includeSources)}
-              className={`relative w-11 h-6 rounded-full transition-colors ${
-                includeSources ? 'bg-blue-500' : 'bg-slate-600'
-              }`}
+              className={cn(
+                "relative w-11 h-6 rounded-full transition-colors",
+                includeSources ? 'bg-primary' : 'bg-secondary'
+              )}
             >
               <span
-                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
+                className={cn(
+                  "absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform",
                   includeSources ? 'translate-x-5' : 'translate-x-0'
-                }`}
+                )}
               />
             </button>
           </div>
 
           {/* Custom Title Input */}
           <div className="space-y-2">
-            <label htmlFor="custom-title" className="text-sm text-slate-300">
+            <label htmlFor="custom-title" className="text-sm text-foreground">
               {t('share.customTitle')}
             </label>
             <input
@@ -205,24 +201,24 @@ export const ShareModal: React.FC<ShareModalProps> = ({
               onChange={(e) => setCustomTitle(e.target.value)}
               placeholder={t('share.customTitlePlaceholder')}
               maxLength={100}
-              className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-colors"
+              className="w-full px-3 py-2 bg-secondary/50 border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-colors"
             />
           </div>
 
           {/* Preview Section */}
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm text-slate-400">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Eye className="w-4 h-4" />
               <span>{t('share.preview')}</span>
             </div>
-            <div className="p-3 bg-slate-800/30 border-l-2 border-blue-500/50 rounded-r-lg">
-              <p className="text-xs text-slate-500 mb-1">{t('share.previewLabel')}</p>
-              <p className="text-sm text-white font-medium truncate">{previewTitle}</p>
-              <p className="text-xs text-slate-400 mt-1 line-clamp-2">
+            <div className="p-3 bg-secondary/30 border-l-2 border-primary/50 rounded-r-lg">
+              <p className="text-xs text-muted-foreground mb-1">{t('share.previewLabel')}</p>
+              <p className="text-sm text-foreground font-medium truncate">{previewTitle}</p>
+              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                 {analysisResult.parsed.summary.substring(0, 100)}...
               </p>
               {includeSources && analysisResult.sources.length > 0 && (
-                <p className="text-xs text-slate-500 mt-2">
+                <p className="text-xs text-muted-foreground/60 mt-2">
                   {t('share.sourcesCount', { count: analysisResult.sources.length })}
                 </p>
               )}
@@ -231,7 +227,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
 
           {/* Error Message */}
           {errorMessage && (
-            <div className="flex items-center gap-2 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
+            <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
               <span>{errorMessage}</span>
             </div>
@@ -239,17 +235,19 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-700/50">
+        <div className="p-4 border-t border-border">
           <button
             onClick={handleCopy}
             disabled={!generatedUrl || copyStatus === 'success'}
-            className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all ${
+            className={cn(
+              "w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all",
+              "disabled:opacity-50 disabled:cursor-not-allowed",
               copyStatus === 'success'
-                ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                ? 'bg-green-500/20 text-green-500 border border-green-500/30'
                 : copyStatus === 'error'
-                ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                : 'bg-blue-500 hover:bg-blue-600 text-white'
-            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                ? 'bg-destructive/20 text-destructive border border-destructive/30'
+                : 'bg-primary hover:bg-primary/90 text-primary-foreground'
+            )}
           >
             {copyStatus === 'success' ? (
               <>
