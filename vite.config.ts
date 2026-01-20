@@ -13,6 +13,13 @@ export default defineConfig(({ mode }) => {
           '127.0.0.1',
           '.manus.computer'
         ],
+        proxy: {
+          '/api': {
+            target: 'https://netpulse.zxvmax.site',
+            changeOrigin: true,
+            secure: true,
+          }
+        }
       },
       plugins: [react()],
       define: {
