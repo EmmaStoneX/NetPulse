@@ -64,25 +64,28 @@ const tavilyAdapter: SearchAdapter = {
 };
 
 
-// Exa Search Adapter
+// Exa Search Adapter - 使用后端代理解决 CORS 问题
 const exaAdapter: SearchAdapter = {
   async search(query: string, apiKey: string, maxResults: number): Promise<SearchResult[]> {
-    const response = await fetch('https://api.exa.ai/search', {
+    const response = await fetch('/api/proxy/exa', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
       },
       body: JSON.stringify({
-        query,
-        numResults: maxResults,
-        contents: { text: true },
+        apiKey,
+        endpoint: 'search',
+        payload: {
+          query,
+          numResults: maxResults,
+          contents: { text: true },
+        },
       }),
     });
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
-      throw new Error(error.message || `Exa API error: ${response.status}`);
+      throw new Error(error.error || `Exa API error: ${response.status}`);
     }
 
     const data = await response.json();
@@ -94,16 +97,19 @@ const exaAdapter: SearchAdapter = {
   },
 
   async testConnection(apiKey: string): Promise<boolean> {
-    const response = await fetch('https://api.exa.ai/search', {
+    const response = await fetch('/api/proxy/exa', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
       },
       body: JSON.stringify({
-        query: 'test',
-        numResults: 1,
-        contents: { text: true },
+        apiKey,
+        endpoint: 'search',
+        payload: {
+          query: 'test',
+          numResults: 1,
+          contents: { text: true },
+        },
       }),
     });
     return response.ok;

@@ -187,7 +187,12 @@ export default {
       return handleShareGet(shareId, env);
     }
     
-    // 6. 静态资源（默认）
+    // 6. API 路由: POST /api/proxy/exa - Exa API 代理 (解决 CORS 问题)
+    if (url.pathname === "/api/proxy/exa" && request.method === "POST") {
+      return handleExaProxy(request, env);
+    }
+    
+    // 7. 静态资源（默认）
     try {
       const response = await env.ASSETS.fetch(request);
       if (response.status === 404 && url.pathname.endsWith("favicon.ico")) {
@@ -199,6 +204,58 @@ export default {
     }
   }
 };
+
+// ============================================
+// Exa API 代理处理函数 (解决 CORS 问题)
+// ============================================
+async function handleExaProxy(request, env) {
+  try {
+    const body = await request.json();
+    const { apiKey, endpoint, payload } = body;
+    
+    if (!apiKey) {
+      return new Response(JSON.stringify({ error: "API key is required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+    
+    const exaEndpoint = endpoint || 'search';
+    const exaUrl = `https://api.exa.ai/${exaEndpoint}`;
+    
+    const response = await fetch(exaUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+      },
+      body: JSON.stringify(payload || { query: 'test', numResults: 1, contents: { text: true } }),
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      return new Response(JSON.stringify({ 
+        error: data.message || `Exa API error: ${response.status}`,
+        status: response.status
+      }), {
+        status: response.status,
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+    
+    return new Response(JSON.stringify(data), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
+    
+  } catch (error) {
+    console.error("[Exa Proxy] Error:", error);
+    return new Response(JSON.stringify({ error: error.message || "Exa proxy failed" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
+  }
+}
 
 // ============================================
 // 分析接口处理函数
