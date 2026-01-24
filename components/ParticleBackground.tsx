@@ -13,7 +13,7 @@ interface Particle {
 const ParticleBackground: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const mouseRef = useRef({ x: 0, y: 0, isHovering: false });
+  const mouseRef = useRef({ x: 0, y: 0, isHovering: false, lastMoveTime: 0 });
   const particlesRef = useRef<Particle[]>([]);
   const animationFrameRef = useRef<number>();
   const isDarkRef = useRef(true); // Track dark mode state
@@ -79,6 +79,7 @@ const ParticleBackground: React.FC = () => {
           x: e.clientX - rect.left,
           y: e.clientY - rect.top,
           isHovering: true,
+          lastMoveTime: Date.now(),
         };
       }
     };
@@ -95,6 +96,17 @@ const ParticleBackground: React.FC = () => {
       const isDark = isDarkRef.current;
       // Dark mode: bright particles (CornflowerBlue-ish). Light mode: dark particles (Slate-ish)
       const particleColor = isDark ? '100, 149, 237' : '71, 85, 105';
+
+      // 计算鼠标静止时间
+      const idleTime = Date.now() - mouseRef.current.lastMoveTime;
+      const idleThreshold = 2000; // 2秒后开始排斥
+      const transitionDuration = 1000; // 1秒过渡时间
+
+      // 计算排斥因子：0 = 纯吸引，1 = 纯排斥
+      let repulsionFactor = 0;
+      if (idleTime > idleThreshold) {
+        repulsionFactor = Math.min((idleTime - idleThreshold) / transitionDuration, 1);
+      }
 
       // Update and draw particles
       particlesRef.current.forEach((p, i) => {
@@ -117,8 +129,12 @@ const ParticleBackground: React.FC = () => {
 
           if (distance < maxDistance) {
             const force = (maxDistance - distance) / maxDistance;
-            p.x += dx * force * 0.02;
-            p.y += dy * force * 0.02;
+            // 混合吸引和排斥：正值吸引，负值排斥
+            const direction = 1 - 2 * repulsionFactor; // 1 -> -1
+            const forceMultiplier = 0.02 * direction;
+
+            p.x += dx * force * forceMultiplier;
+            p.y += dy * force * forceMultiplier;
             p.alpha = Math.min(p.baseAlpha + force * 0.5, 1);
           } else {
             p.alpha = p.baseAlpha;
