@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Share2, Sparkles } from 'lucide-react';
+import { Share2, Compass } from 'lucide-react';
 import { ResultView } from './ResultView';
 import { SharedAnalysisData } from '../utils/shareUtils';
 import { cn } from '../utils/cn';
@@ -15,15 +15,15 @@ export const SharedView: React.FC<SharedViewProps> = ({
   onStartNewAnalysis,
 }) => {
   const { t } = useTranslation();
-  
+
   const { analysisResult, shareOptions, originalQuery, customTitle } = sharedData;
-  
-  const displayTitle = customTitle || (shareOptions.includeQuery && originalQuery) 
-    ? (customTitle || originalQuery) 
+
+  const displayTitle = customTitle || (shareOptions.includeQuery && originalQuery)
+    ? (customTitle || originalQuery)
     : t('share.sharedAnalysis');
 
-  const displayResult = shareOptions.includeSources 
-    ? analysisResult 
+  const displayResult = shareOptions.includeSources
+    ? analysisResult
     : { ...analysisResult, sources: [] };
 
   return (
@@ -45,13 +45,13 @@ export const SharedView: React.FC<SharedViewProps> = ({
                 <span>{t('sharedView.badge')}</span>
               </div>
             </div>
-            
+
             {/* Start New Analysis Button */}
             <button
               onClick={onStartNewAnalysis}
               className="flex items-center gap-2 px-3 py-2 text-xs md:text-sm text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-secondary/50"
             >
-              <Sparkles className="w-4 h-4" />
+              <Compass className="w-4 h-4" />
               <span className="hidden sm:inline">{t('sharedView.startNew')}</span>
             </button>
           </div>
@@ -77,7 +77,7 @@ export const SharedView: React.FC<SharedViewProps> = ({
       <div className="container mx-auto px-4 sm:px-6 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="bg-card/80 backdrop-blur-md rounded-2xl p-6 md:p-8 text-center border border-border">
-            <Sparkles className="w-8 h-8 text-primary mx-auto mb-4" />
+            <Compass className="w-8 h-8 text-primary mx-auto mb-4" />
             <h3 className="text-lg md:text-xl font-bold text-foreground mb-2">
               {t('sharedView.ctaTitle')}
             </h3>
@@ -88,7 +88,7 @@ export const SharedView: React.FC<SharedViewProps> = ({
               onClick={onStartNewAnalysis}
               className="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-lg transition-colors"
             >
-              <Sparkles className="w-4 h-4" />
+              <Compass className="w-4 h-4" />
               {t('sharedView.startNewButton')}
             </button>
           </div>
