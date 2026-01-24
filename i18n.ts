@@ -19,8 +19,8 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'zh', // 默认语言为中文
-    fallbackLng: 'zh', // 回退语言为中文
+    // 不设置 lng，让 LanguageDetector 自动检测系统语言
+    fallbackLng: 'en', // 回退语言为英文（当检测到的语言不支持时）
     interpolation: {
       escapeValue: false // React 已有 XSS 防护
     },
