@@ -86,16 +86,16 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
   const isZh = i18n.language?.startsWith('zh');
 
   return (
-    <div className="w-full max-w-3xl mx-auto text-center">
+    <div className="w-full max-w-5xl mx-auto text-center">
       <h2 className={cn(
-        "text-xl sm:text-3xl md:text-5xl font-bold mb-4 md:mb-6 tracking-tight px-2 text-foreground",
+        "text-xl sm:text-3xl md:text-5xl font-bold mb-6 md:mb-8 tracking-tight px-2 text-foreground md:leading-relaxed",
         isZh && 'whitespace-nowrap'
       )}>
-        <span className={isZh ? '' : 'block sm:inline'}>{t('searchBar.heroTitle1')}</span>{' '}
+        <span className={isZh ? '' : 'block sm:inline mb-2 sm:mb-0'}>{t('searchBar.heroTitle1')}</span>{' '}
         <span className="gradient-text whitespace-nowrap">{t('searchBar.heroTitle2')}</span>
       </h2>
       <p className={cn(
-        "text-muted-foreground mb-6 md:mb-8 text-sm sm:text-base md:text-lg px-4",
+        "text-muted-foreground mb-6 md:mb-8 text-sm sm:text-base md:text-lg px-4 max-w-3xl mx-auto",
         isZh ? 'whitespace-nowrap' : 'md:whitespace-nowrap'
       )}>
         {t('searchBar.heroDescription')}
@@ -132,7 +132,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
       </div>
 
       {/* 搜索框 */}
-      <form onSubmit={handleSubmit} className="relative group px-2 sm:px-0">
+      <form onSubmit={handleSubmit} className="relative group px-2 sm:px-0 max-w-3xl mx-auto">
         <div className={cn(
           "absolute inset-0 bg-gradient-to-r rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-500",
           mode === 'fast' ? 'from-amber-500 to-orange-600' : 'from-primary to-accent'
@@ -169,7 +169,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
       </form>
 
       {/* 热门话题 */}
-      <div className="mt-6 flex flex-wrap justify-center gap-2 px-2">
+      <div className="mt-6 flex flex-wrap justify-center gap-2 px-2 max-w-3xl mx-auto">
         <span className="text-xs md:text-sm text-muted-foreground py-1">{t('searchBar.trendingTopics')}</span>
         {trendingTopics.map((topic, idx) => (
           <button
