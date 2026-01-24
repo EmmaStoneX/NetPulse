@@ -4,7 +4,7 @@ import { Activity, Menu, X, Settings, Github, Sun, Moon } from 'lucide-react';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { SettingsPanel } from './SettingsPanel';
 import { cn } from '../utils/cn';
-import { trackSettingsOpened } from '../utils/analytics';
+import { trackSettingsOpened, trackGitHubClicked } from '../utils/analytics';
 
 interface HeaderProps {
   isLoading?: boolean;
@@ -94,6 +94,7 @@ export const Header: React.FC<HeaderProps> = ({ isLoading = false }) => {
             href="https://github.com/EmmaStoneX/NetPulse/"
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => trackGitHubClicked()}
             className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-background/80"
             aria-label="GitHub"
           >
@@ -133,6 +134,7 @@ export const Header: React.FC<HeaderProps> = ({ isLoading = false }) => {
           href="https://github.com/EmmaStoneX/NetPulse/"
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => trackGitHubClicked()}
           className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-secondary/50"
           aria-label="GitHub"
         >

@@ -116,3 +116,10 @@ export function trackTrendingTopicClicked(topicIndex: number): void {
 export function trackSharedViewAccessed(): void {
     trackEvent('shared_view_accessed');
 }
+
+/**
+ * 追踪 GitHub 链接点击
+ */
+export function trackGitHubClicked(): void {
+    trackEvent('github_clicked');
+}
