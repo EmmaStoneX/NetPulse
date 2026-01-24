@@ -27,6 +27,7 @@
 - **Share Analysis**: Generate short links to share analysis results with others. Data stored in Cloudflare KV with 30-day expiration.
 - **Secure Architecture**: API Keys are stored in Cloudflare Worker Secrets. The frontend only communicates with your own backend (`/api/analyze`).
 - **Responsive UI**: A modern, glassmorphism-inspired interface built with **Tailwind CSS**, optimized for mobile and desktop.
+- **Immersive Experience**: New "Event Horizon" space theme with interactive particle background and smooth animations.
 - **Dynamic Trending Topics**: Real-time trending topics fetched and cached by language.
 
 ## 🛠 Tech Stack
@@ -51,6 +52,7 @@ NetPulse/
 │   └── en/translation.json # English translations
 ├── components/
 │   ├── Header.tsx          # Header with language switcher
+│   ├── ParticleBackground.tsx # Interactive particle background
 │   ├── SearchBar.tsx       # Search interface with trending topics
 │   ├── ResultView.tsx      # Analysis result display
 │   ├── ShareButton.tsx     # Share button component
