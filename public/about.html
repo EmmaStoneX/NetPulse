@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>About NetPulse - AI-Powered Internet Event Analyzer</title>
     <meta name="description"
         content="Learn about NetPulse, an intelligent internet event analyzer powered by Gemini AI." />
@@ -57,7 +57,8 @@
         * {
             margin: 0;
             padding: 0;
-            box-sizing: border-box
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent
         }
 
         html {
@@ -69,7 +70,8 @@
             background: var(--bg);
             color: var(--fg);
             line-height: 1.6;
-            transition: background .3s, color .3s
+            transition: background .3s, color .3s;
+            overflow-x: hidden
         }
 
         .container {
@@ -78,6 +80,7 @@
             padding: 0 24px
         }
 
+        /* Navigation */
         nav {
             position: fixed;
             top: 0;
@@ -101,7 +104,8 @@
             align-items: center;
             gap: 10px;
             text-decoration: none;
-            color: var(--fg)
+            color: var(--fg);
+            z-index: 101
         }
 
         .logo-icon {
@@ -128,7 +132,8 @@
         .nav-right {
             display: flex;
             align-items: center;
-            gap: 8px
+            gap: 8px;
+            z-index: 101
         }
 
         .nav-links {
@@ -141,13 +146,15 @@
             color: var(--muted);
             text-decoration: none;
             font-size: .875rem;
-            font-weight: 500
+            font-weight: 500;
+            transition: color .2s
         }
 
         .nav-links a:hover {
             color: var(--fg)
         }
 
+        /* Controls */
         .ctrl-group {
             display: flex;
             align-items: center;
@@ -166,7 +173,9 @@
             border: 0;
             color: var(--muted);
             cursor: pointer;
-            display: flex
+            display: flex;
+            align-items: center;
+            justify-content: center
         }
 
         .ctrl-group button:hover,
@@ -194,7 +203,7 @@
             color: var(--muted);
             cursor: pointer;
             font-size: .75rem;
-            font-weight: 500;
+            font-weight: 600;
             border-radius: 6px
         }
 
@@ -204,9 +213,11 @@
 
         .lang-btn.active {
             background: var(--card);
-            color: var(--fg)
+            color: var(--fg);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05)
         }
 
+        /* Buttons */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -218,7 +229,8 @@
             font-size: .875rem;
             transition: all .2s;
             border: 0;
-            cursor: pointer
+            cursor: pointer;
+            white-space: nowrap
         }
 
         .btn-primary {
@@ -241,36 +253,84 @@
             border-color: var(--primary)
         }
 
+        /* Mobile Menu Button */
+        .menu-btn {
+            display: none;
+            background: 0;
+            border: 0;
+            color: var(--fg);
+            padding: 8px;
+            margin-left: 8px;
+            cursor: pointer
+        }
+
+        .menu-btn svg {
+            width: 24px;
+            height: 24px
+        }
+
+        /* Mobile Menu Overlay */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg);
+            z-index: 99;
+            padding: 80px 24px 24px;
+            transform: translateY(-100%);
+            transition: transform .3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 24px
+        }
+
+        .mobile-menu.open {
+            transform: translateY(0)
+        }
+
+        .mobile-link {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--fg);
+            text-decoration: none;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border)
+        }
+
+        /* Hero */
         .hero {
             min-height: 100vh;
             display: flex;
             align-items: center;
-            padding: 100px 0 60px;
+            padding: 120px 0 60px;
             text-align: center
         }
 
         .hero-content {
             max-width: 800px;
-            margin: 0 auto
+            margin: 0 auto;
+            width: 100%
         }
 
         .badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 16px;
+            padding: 6px 14px;
             background: hsl(221 83% 53%/.1);
             border: 1px solid hsl(221 83% 53%/.3);
             border-radius: 100px;
             color: var(--primary);
-            font-size: .875rem;
-            font-weight: 500;
+            font-size: .8rem;
+            font-weight: 600;
             margin-bottom: 24px
         }
 
         .badge-dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             background: var(--accent);
             border-radius: 50%;
             animation: pulse 2s infinite
@@ -290,22 +350,24 @@
 
         .hero h1 {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: clamp(2.5rem, 7vw, 4rem);
+            font-size: clamp(2rem, 6vw, 4rem);
             font-weight: 700;
             line-height: 1.1;
-            margin-bottom: 20px
+            margin-bottom: 20px;
+            letter-spacing: -0.02em
         }
 
         .hero-sub {
-            font-size: 1.15rem;
+            font-size: clamp(1rem, 4vw, 1.15rem);
             color: var(--muted);
             max-width: 600px;
-            margin: 0 auto 36px
+            margin: 0 auto 36px;
+            padding: 0 10px
         }
 
         .hero-btns {
             display: flex;
-            gap: 14px;
+            gap: 12px;
             justify-content: center;
             flex-wrap: wrap
         }
@@ -331,30 +393,33 @@
             margin-top: 4px
         }
 
+        /* Sections */
         .section {
-            padding: 80px 0
+            padding: 60px 0
         }
 
         .section-header {
             text-align: center;
             max-width: 600px;
-            margin: 0 auto 48px
+            margin: 0 auto 40px;
+            padding: 0 16px
         }
 
         .section-badge {
             color: var(--accent);
-            font-weight: 600;
-            font-size: .8rem;
+            font-weight: 700;
+            font-size: .75rem;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
             margin-bottom: 12px
         }
 
         .section-title {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: clamp(1.6rem, 4vw, 2.2rem);
+            font-size: clamp(1.5rem, 5vw, 2.2rem);
             font-weight: 700;
-            margin-bottom: 12px
+            margin-bottom: 12px;
+            line-height: 1.2
         }
 
         .section-desc {
@@ -362,10 +427,11 @@
             font-size: 1rem
         }
 
+        /* Features Grid */
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 16px
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px
         }
 
         .feature-card {
@@ -399,17 +465,18 @@
         }
 
         .feature-card h3 {
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 8px
         }
 
         .feature-card p {
             color: var(--muted);
-            font-size: .9rem;
+            font-size: .95rem;
             line-height: 1.6
         }
 
+        /* Story */
         .story-section {
             background: linear-gradient(180deg, transparent 0%, hsl(221 83% 53%/.03) 50%, transparent 100%)
         }
@@ -425,20 +492,16 @@
 
         .story-card h3 {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.5rem;
-            margin-bottom: 24px;
+            font-size: 1.4rem;
+            margin-bottom: 20px;
             color: var(--fg)
         }
 
         .story-card p {
             color: var(--muted);
-            line-height: 1.9;
-            margin-bottom: 20px;
-            font-size: 1.05rem
-        }
-
-        .story-card p:last-child {
-            margin-bottom: 0
+            line-height: 1.8;
+            margin-bottom: 16px;
+            font-size: 1rem
         }
 
         .highlight {
@@ -449,23 +512,18 @@
             border-radius: 4px
         }
 
+        /* Tech Grid */
         .tech-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 14px
-        }
-
-        @media(max-width:800px) {
-            .tech-grid {
-                grid-template-columns: repeat(2, 1fr)
-            }
+            gap: 16px
         }
 
         .tech-item {
             background: var(--card);
             border: 1px solid var(--card-border);
             border-radius: 12px;
-            padding: 20px;
+            padding: 20px 10px;
             text-align: center;
             transition: all .3s
         }
@@ -485,52 +543,62 @@
         }
 
         .tech-icon svg {
-            width: 32px;
-            height: 32px
+            width: 28px;
+            height: 28px
         }
 
         .tech-name {
             font-weight: 600;
-            font-size: .9rem;
+            font-size: .85rem;
             margin-bottom: 4px
         }
 
         .tech-desc {
-            font-size: .8rem;
+            font-size: .75rem;
             color: var(--muted)
         }
 
+        /* CTA */
         .cta-section {
-            padding: 80px 0;
+            padding: 60px 0;
             text-align: center
         }
 
         .cta-card {
             background: var(--primary);
-            border-radius: 20px;
-            padding: 48px 32px;
-            color: #fff
+            border-radius: 24px;
+            padding: 48px 24px;
+            color: #fff;
+            margin: 0 12px
         }
 
         .cta-card h2 {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: clamp(1.4rem, 3vw, 1.8rem);
-            margin-bottom: 12px
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            margin-bottom: 16px;
+            line-height: 1.2
         }
 
         .cta-card p {
             opacity: .9;
-            margin-bottom: 24px
+            margin-bottom: 28px;
+            font-size: 1rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto
         }
 
         .cta-card .btn {
             background: #fff;
-            color: var(--primary)
+            color: var(--primary);
+            padding: 12px 24px;
+            font-size: 1rem
         }
 
+        /* Footer */
         footer {
             border-top: 1px solid var(--border);
-            padding: 32px 0
+            padding: 40px 0 20px
         }
 
         .footer-content {
@@ -538,12 +606,13 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 20px
+            gap: 24px
         }
 
         .footer-links {
             display: flex;
-            gap: 16px
+            gap: 20px;
+            flex-wrap: wrap
         }
 
         .footer-links a {
@@ -552,15 +621,12 @@
             font-size: .875rem
         }
 
-        .footer-links a:hover {
-            color: var(--fg)
-        }
-
         .footer-copy {
             color: var(--muted);
             font-size: .8rem
         }
 
+        /* i18n display logic */
         [data-lang-en] {
             display: none
         }
@@ -585,23 +651,75 @@
             display: inline
         }
 
+        /* Mobile Responsive */
         @media(max-width:768px) {
+            .container {
+                padding: 0 20px
+            }
+
             .nav-links {
                 display: none
             }
 
+            .menu-btn {
+                display: block
+            }
+
+            .hero {
+                padding-top: 100px
+            }
+
             .stats {
-                gap: 24px
+                gap: 20px;
+                justify-content: space-around
+            }
+
+            .stat-val {
+                font-size: 1.6rem
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr
             }
 
             .story-card {
-                padding: 24px 18px
+                padding: 24px 20px
+            }
+
+            .tech-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px
             }
 
             .footer-content {
                 flex-direction: column;
                 text-align: center
             }
+
+            .footer-links {
+                justify-content: center;
+                gap: 16px
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center
+            }
+
+            .hero-btns {
+                flex-direction: column;
+                width: 100%
+            }
+
+            .hero-btns .btn {
+                width: 100%
+            }
+
+            .nav-right .btn-primary {
+                display: none
+            }
+
+            /* Hide Launch button in nav on mobile to save space */
         }
     </style>
 </head>
@@ -644,13 +762,31 @@
                             <path d="M9 18c-4.51 2-5-2-7-2" />
                         </svg>
                     </a>
-                    <div class="divider"></div>
+                    <div class="divider" style="display:none"></div>
+                    <!-- Hidden on mobile via css if needed, but flex handles it -->
                     <a href="/" class="btn btn-primary"><span data-lang-en class="inline">Launch</span><span
                             data-lang-zh class="inline">启动</span> →</a>
                 </div>
+                <button class="menu-btn" onclick="toggleMenu()" aria-label="Menu">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
             </div>
         </div>
     </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobile-menu">
+        <a href="#features" class="mobile-link" onclick="toggleMenu()"><span data-lang-en>Features</span><span
+                data-lang-zh>功能特性</span></a>
+        <a href="#story" class="mobile-link" onclick="toggleMenu()"><span data-lang-en>Our Story</span><span
+                data-lang-zh>诞生故事</span></a>
+        <a href="#tech" class="mobile-link" onclick="toggleMenu()"><span data-lang-en>Tech Stack</span><span
+                data-lang-zh>技术栈</span></a>
+        <a href="/" class="btn btn-primary" style="margin-top:20px;justify-content:center"><span data-lang-en
+                class="inline">Launch App</span><span data-lang-zh class="inline">启动应用</span> →</a>
+    </div>
 
     <section class="hero">
         <div class="container">
@@ -933,6 +1069,11 @@
         updateThemeIcons();
         function setLang(l) { document.documentElement.lang = l; localStorage.setItem('netpulse_lang', l); document.querySelectorAll('.lang-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.lang === l) }) }
         (function () { var s = localStorage.getItem('netpulse_lang') || ((navigator.language || '').startsWith('zh') ? 'zh' : 'en'); document.documentElement.lang = s; document.querySelectorAll('.lang-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.lang === s) }) })();
+
+        // Mobile Menu Logic
+        function toggleMenu() {
+            document.getElementById('mobile-menu').classList.toggle('open');
+        }
     </script>
 </body>
 
