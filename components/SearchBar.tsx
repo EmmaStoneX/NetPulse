@@ -37,8 +37,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
     return lang.startsWith('zh') ? DEFAULT_TOPICS_ZH : DEFAULT_TOPICS_EN;
   }, []);
 
-  // 获取热门话题
-  const fetchTrendingTopics = useCallback(async (lang: string) => {
+  // 获取热门话题（带请求取消）
+  const fetchTrendingTopics = useCallback(async (lang: string, signal?: AbortSignal) => {
     setIsLoadingTopics(true);
     const langCode = lang.startsWith('zh') ? 'zh' : 'en';
 
@@ -47,36 +47,43 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
     try {
       console.log(`[SearchBar] Fetching trending topics for lang=${langCode}`);
       const topics = await getTrendingTopics(langCode);
+
+      // 检查请求是否已被取消
+      if (signal?.aborted) {
+        console.log(`[SearchBar] Request for lang=${langCode} was aborted`);
+        return;
+      }
+
       if (topics && topics.length > 0) {
         console.log(`[SearchBar] Got ${topics.length} topics:`, topics);
         setTrendingTopics(topics);
       }
     } catch (error) {
+      if ((error as Error).name === 'AbortError') {
+        console.log(`[SearchBar] Request for lang=${langCode} was aborted`);
+        return;
+      }
       console.error('[SearchBar] Failed to fetch trending topics:', error);
     } finally {
-      setIsLoadingTopics(false);
+      if (!signal?.aborted) {
+        setIsLoadingTopics(false);
+      }
     }
   }, [getDefaultTopics]);
 
-  // 监听语言变化
+  // 监听语言变化（使用 AbortController 取消旧请求）
   useEffect(() => {
     const currentLang = i18n.language || 'zh';
     console.log(`[SearchBar] Language changed to: ${currentLang}`);
-    fetchTrendingTopics(currentLang);
-  }, [i18n.language, fetchTrendingTopics]);
 
-  // 监听 i18n 语言变化事件
-  useEffect(() => {
-    const handleLanguageChanged = (lng: string) => {
-      console.log(`[SearchBar] i18n languageChanged event: ${lng}`);
-      fetchTrendingTopics(lng);
-    };
+    const abortController = new AbortController();
+    fetchTrendingTopics(currentLang, abortController.signal);
 
-    i18n.on('languageChanged', handleLanguageChanged);
     return () => {
-      i18n.off('languageChanged', handleLanguageChanged);
+      // 组件卸载或语言再次变化时，取消之前的请求
+      abortController.abort();
     };
-  }, [i18n, fetchTrendingTopics]);
+  }, [i18n.language, fetchTrendingTopics]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
