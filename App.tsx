@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Header } from './components/Header';
 import { SearchBar } from './components/SearchBar';
@@ -20,6 +20,7 @@ import {
 import { cn } from './utils/cn';
 import { AlertCircle, Zap, ArrowLeft, Share2, Home } from 'lucide-react';
 import ParticleBackground from './components/ParticleBackground';
+import { trackAnalysisCompleted, trackShareClicked, trackSharedViewAccessed } from './utils/analytics';
 
 type PageView = 'home' | 'privacy' | 'terms' | 'shared' | 'shared-error';
 
@@ -80,21 +81,37 @@ const App: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
+  // 用于计算分析耗时
+  const analysisStartTime = useRef<number>(0);
+
   const handleSearch = async (query: string, mode: AnalysisMode) => {
     setStatus(LoadingState.SEARCHING);
     setErrorMsg('');
     setResult(null);
     setCurrentMode(mode);
     setCurrentQuery(query);
+    analysisStartTime.current = Date.now();
 
     try {
       const data = await analyzeEvent(query, mode);
       setResult(data);
       setStatus(LoadingState.COMPLETE);
+      // 追踪分析成功
+      trackAnalysisCompleted({
+        mode,
+        success: true,
+        duration: Date.now() - analysisStartTime.current,
+      });
     } catch (err) {
       console.error(err);
       setErrorMsg(t('error.message'));
       setStatus(LoadingState.ERROR);
+      // 追踪分析失败
+      trackAnalysisCompleted({
+        mode,
+        success: false,
+        duration: Date.now() - analysisStartTime.current,
+      });
     }
   };
 
@@ -109,6 +126,7 @@ const App: React.FC = () => {
   };
 
   const handleShareClick = () => {
+    trackShareClicked();
     setIsShareModalOpen(true);
   };
 

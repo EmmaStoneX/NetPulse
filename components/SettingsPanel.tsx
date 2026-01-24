@@ -12,6 +12,7 @@ import {
 import { apiConfigStore } from '../utils/apiConfigStore';
 import { testSearchConnection, testLLMConnection } from '../services/directApiService';
 import { cn } from '../utils/cn';
+import { trackCustomApiKeySaved } from '../utils/analytics';
 
 type TestStatus = 'idle' | 'testing' | 'success' | 'error';
 
@@ -61,6 +62,12 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
 
   const handleSave = () => {
     apiConfigStore.save(config);
+    // 追踪自定义 API Key 配置保存
+    trackCustomApiKeySaved({
+      searchProvider: config.searchProvider,
+      llmProvider: config.llmProvider,
+      enabled: config.enabled,
+    });
     onClose();
   };
 
@@ -238,7 +245,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                 {searchProviders.map((p) => <option key={p} value={p}>{PROVIDER_INFO.search[p].name}</option>)}
               </select>
             </div>
-            
+
             {/* Search API Key with Test Button */}
             <div className="flex items-center gap-2">
               <div className="relative flex-1">

@@ -4,6 +4,7 @@ import { Search, TrendingUp, ArrowRight, Zap, BrainCircuit } from 'lucide-react'
 import { AnalysisMode } from '../types';
 import { getTrendingTopics } from '../services/geminiService';
 import { cn } from '../utils/cn';
+import { trackSearchInitiated, trackModeSelected, trackTrendingTopicClicked } from '../utils/analytics';
 
 interface SearchBarProps {
   onSearch: (query: string, mode: AnalysisMode) => void;
@@ -87,7 +88,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (input.trim()) onSearch(input, mode);
+    if (input.trim()) {
+      trackSearchInitiated({
+        mode,
+        queryLength: input.trim().length,
+        source: 'input',
+      });
+      onSearch(input, mode);
+    }
   };
 
   const isZh = i18n.language?.startsWith('zh');
@@ -112,7 +120,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
       <div className="flex justify-center mb-6">
         <div className="bg-card/80 border border-border p-1 rounded-xl inline-flex items-center gap-1">
           <button
-            onClick={() => setMode('fast')}
+            onClick={() => {
+              trackModeSelected('fast');
+              setMode('fast');
+            }}
             className={cn(
               "flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition-all",
               mode === 'fast'
@@ -124,7 +135,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
             <span className="whitespace-nowrap">{t('searchBar.fastMode')}</span>
           </button>
           <button
-            onClick={() => setMode('deep')}
+            onClick={() => {
+              trackModeSelected('deep');
+              setMode('deep');
+            }}
             className={cn(
               "flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition-all",
               mode === 'deep'
@@ -182,6 +196,12 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
           <button
             key={`${i18n.language}-${topic}-${idx}`}
             onClick={() => {
+              trackSearchInitiated({
+                mode,
+                queryLength: topic.length,
+                source: 'trending',
+              });
+              trackTrendingTopicClicked(idx);
               setInput(topic);
               onSearch(topic, mode);
             }}

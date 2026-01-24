@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Globe, ChevronDown } from 'lucide-react';
 import { cn } from '../utils/cn';
+import { trackLanguageSwitched } from '../utils/analytics';
 
 export const LanguageSwitcher: React.FC = () => {
   const { i18n, t } = useTranslation();
@@ -9,6 +10,10 @@ export const LanguageSwitcher: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const changeLanguage = (lng: 'zh' | 'en') => {
+    const currentLang = i18n.language?.startsWith('zh') ? 'zh' : 'en';
+    if (currentLang !== lng) {
+      trackLanguageSwitched({ from: currentLang, to: lng });
+    }
     i18n.changeLanguage(lng);
     setIsOpen(false);
   };
@@ -28,7 +33,7 @@ export const LanguageSwitcher: React.FC = () => {
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           "flex items-center gap-1.5 text-sm font-medium transition-colors",
@@ -41,26 +46,26 @@ export const LanguageSwitcher: React.FC = () => {
         <span className="hidden sm:inline">{currentLangText}</span>
         <ChevronDown className={cn("w-3 h-3 transition-transform duration-200", isOpen && 'rotate-180')} />
       </button>
-      
+
       {isOpen && (
         <div className="absolute top-full right-0 mt-2 w-28 bg-card border border-border rounded-lg shadow-xl z-50 overflow-hidden animate-fade-in">
-          <button 
-            onClick={() => changeLanguage('zh')} 
+          <button
+            onClick={() => changeLanguage('zh')}
             className={cn(
               "block w-full text-left px-4 py-2.5 text-sm transition-colors",
-              currentLang === 'zh' 
-                ? 'bg-primary/20 text-primary' 
+              currentLang === 'zh'
+                ? 'bg-primary/20 text-primary'
                 : 'text-foreground hover:bg-secondary'
             )}
           >
             中文
           </button>
-          <button 
-            onClick={() => changeLanguage('en')} 
+          <button
+            onClick={() => changeLanguage('en')}
             className={cn(
               "block w-full text-left px-4 py-2.5 text-sm transition-colors",
-              currentLang === 'en' 
-                ? 'bg-primary/20 text-primary' 
+              currentLang === 'en'
+                ? 'bg-primary/20 text-primary'
                 : 'text-foreground hover:bg-secondary'
             )}
           >

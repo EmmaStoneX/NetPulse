@@ -4,6 +4,7 @@ import { X, Share2, Copy, Check, AlertCircle, Eye } from 'lucide-react';
 import { AnalysisResult } from '../types';
 import { ShareOptions, createShareData, generateShareUrl } from '../utils/shareUtils';
 import { cn } from '../utils/cn';
+import { trackShareCreated } from '../utils/analytics';
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -19,11 +20,11 @@ export const ShareModal: React.FC<ShareModalProps> = ({
   query,
 }) => {
   const { t } = useTranslation();
-  
+
   const [includeQuery, setIncludeQuery] = useState(true);
   const [customTitle, setCustomTitle] = useState('');
   const [includeSources, setIncludeSources] = useState(true);
-  
+
   const [copyStatus, setCopyStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [generatedUrl, setGeneratedUrl] = useState('');
@@ -34,10 +35,10 @@ export const ShareModal: React.FC<ShareModalProps> = ({
       customTitle: customTitle.trim() || undefined,
       includeSources,
     };
-    
+
     const shareData = createShareData(analysisResult, query, options);
     const url = await generateShareUrl(shareData);
-    
+
     if (url) {
       setGeneratedUrl(url);
       setErrorMessage('');
@@ -63,6 +64,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     try {
       await navigator.clipboard.writeText(generatedUrl);
       setCopyStatus('success');
+      trackShareCreated(30); // 默认30天过期
       setTimeout(() => setCopyStatus('idle'), 2000);
     } catch {
       try {
@@ -90,7 +92,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         onClose();
       }
     };
-    
+
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
@@ -111,14 +113,14 @@ export const ShareModal: React.FC<ShareModalProps> = ({
   const previewTitle = customTitle.trim() || (includeQuery ? query : t('share.sharedAnalysis'));
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-fade-in"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="share-modal-title"
     >
-      <div 
+      <div
         className="w-full max-w-md bg-card rounded-2xl border border-border shadow-2xl animate-fade-in"
         onClick={(e) => e.stopPropagation()}
       >
@@ -245,8 +247,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({
               copyStatus === 'success'
                 ? 'bg-green-500/20 text-green-500 border border-green-500/30'
                 : copyStatus === 'error'
-                ? 'bg-destructive/20 text-destructive border border-destructive/30'
-                : 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                  ? 'bg-destructive/20 text-destructive border border-destructive/30'
+                  : 'bg-primary hover:bg-primary/90 text-primary-foreground'
             )}
           >
             {copyStatus === 'success' ? (

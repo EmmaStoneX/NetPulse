@@ -4,6 +4,7 @@ import { Activity, Menu, X, Settings, Github, Sun, Moon } from 'lucide-react';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { SettingsPanel } from './SettingsPanel';
 import { cn } from '../utils/cn';
+import { trackSettingsOpened } from '../utils/analytics';
 
 interface HeaderProps {
   isLoading?: boolean;
@@ -99,7 +100,10 @@ export const Header: React.FC<HeaderProps> = ({ isLoading = false }) => {
             <Github className="w-4 h-4" />
           </a>
           <button
-            onClick={() => setIsSettingsOpen(true)}
+            onClick={() => {
+              trackSettingsOpened();
+              setIsSettingsOpen(true);
+            }}
             className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-background/80"
             aria-label={t('settings.title')}
           >
@@ -137,7 +141,10 @@ export const Header: React.FC<HeaderProps> = ({ isLoading = false }) => {
 
         {/* 设置 */}
         <button
-          onClick={() => setIsSettingsOpen(true)}
+          onClick={() => {
+            trackSettingsOpened();
+            setIsSettingsOpen(true);
+          }}
           className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-secondary/50"
           aria-label={t('settings.title')}
         >
