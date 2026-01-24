@@ -39,108 +39,114 @@ export const Header: React.FC<HeaderProps> = ({ isLoading = false }) => {
       "sticky top-0 z-50 transition-colors duration-300"
     )}>
       {/* Logo 区域 */}
+      {/* Logo 区域 */}
       <div className="flex items-center gap-3">
-        <div className="p-2 bg-primary rounded-lg shadow-lg shadow-primary/20">
-          <Activity className="w-5 h-5 md:w-6 md:h-6 text-primary-foreground" />
+        <div className="p-1.5 bg-primary rounded-lg shadow-lg shadow-primary/20 flex-shrink-0">
+          <Activity className="w-4 h-4 md:w-5 md:h-5 text-primary-foreground" />
         </div>
-        <div>
-          <h1 className="text-lg md:text-xl font-bold tracking-tight text-foreground">{t('header.title')}</h1>
-          <p className="text-[10px] md:text-xs text-muted-foreground font-mono uppercase tracking-widest">{t('header.subtitle')}</p>
+
+        {/* 标题组合容器 */}
+        <div className="flex items-center gap-3">
+          <h1 className="text-lg md:text-lg font-bold tracking-tight text-foreground leading-none">
+            NetPulse
+          </h1>
+
+          {/* 桌面端显示分隔符和副标题 */}
+          <div className="hidden md:flex items-center gap-3">
+            <span className="h-4 w-[1.5px] bg-foreground/30 block rounded-full"></span>
+            <span className="text-base font-bold tracking-wide text-foreground/80 pt-0.5 leading-none">
+              {t('header.subtitle')}
+            </span>
+          </div>
+
+          {/* 状态指示器 */}
+          {isLoading && (
+            <span className="relative flex h-1.5 w-1.5 md:h-2 md:w-2 ml-0.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 md:h-2 md:w-2 bg-green-500"></span>
+            </span>
+          )}
         </div>
       </div>
 
       {/* 桌面端：状态信息和语言切换 */}
-      <div className="hidden md:flex items-center gap-3">
-        <div className="flex items-center gap-3 text-sm font-medium text-muted-foreground">
+      <div className="hidden md:flex items-center gap-1">
+        <div className="flex items-center gap-3 text-sm font-medium text-muted-foreground mr-4">
           <span>{t('header.realTimeAnalysis')}</span>
-          {/* 绿色呼吸灯指示器 */}
-          <div className="relative flex items-center justify-center">
-            <span 
-              className={cn(
-                "w-2 h-2 rounded-full bg-green-500",
-                isLoading && "animate-pulse"
-              )}
-            />
-            {isLoading && (
-              <span className="absolute w-4 h-4 rounded-full bg-green-500/30 animate-ping" />
-            )}
-          </div>
           <span>{t('header.searchEnabled')}</span>
         </div>
-        <div className="w-px h-5 bg-border" />
-        <LanguageSwitcher />
-        <div className="flex items-center -ml-1">
+
+        {/* 图标功能区容器 */}
+        <div className="flex items-center gap-1 p-1 bg-secondary/30 rounded-full border border-border/50 backdrop-blur-sm">
+          <LanguageSwitcher />
+          <div className="w-px h-4 bg-border mx-1" />
           {/* 主题切换按钮 */}
           <button
             onClick={toggleTheme}
-            className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+            className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-background/80"
             aria-label="Toggle theme"
           >
-            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
           <a
             href="https://github.com/EmmaStoneX/NetPulse/"
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+            className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-background/80"
             aria-label="GitHub"
           >
-            <Github className="w-5 h-5" />
+            <Github className="w-4 h-4" />
           </a>
           <button
             onClick={() => setIsSettingsOpen(true)}
-            className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+            className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-background/80"
             aria-label={t('settings.title')}
           >
-            <Settings className="w-5 h-5" />
+            <Settings className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* 移动端：汉堡菜单按钮 */}
-      <div className="flex md:hidden items-center gap-2">
-        {/* 移动端呼吸灯 */}
-        <div className="relative flex items-center justify-center mr-1">
-          <span 
-            className={cn(
-              "w-2 h-2 rounded-full bg-green-500",
-              isLoading && "animate-pulse"
-            )}
-          />
-          {isLoading && (
-            <span className="absolute w-4 h-4 rounded-full bg-green-500/30 animate-ping" />
-          )}
+      {/* 移动端：统一图标容器 */}
+      <div className="flex md:hidden items-center gap-1">
+        {/* 语言切换 (简化版样式，使其与其他图标一致) */}
+        <div className="flex items-center justify-center w-9 h-9">
+          <LanguageSwitcher />
         </div>
-        <LanguageSwitcher />
-        <div className="flex items-center">
-          {/* 移动端主题切换 */}
-          <button
-            onClick={toggleTheme}
-            className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Toggle theme"
-          >
-            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          </button>
-          <a
-            href="https://github.com/EmmaStoneX/NetPulse/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="GitHub"
-          >
-            <Github className="w-5 h-5" />
-          </a>
-          <button
-            onClick={() => setIsSettingsOpen(true)}
-            className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-            aria-label={t('settings.title')}
-          >
-            <Settings className="w-5 h-5" />
-          </button>
-        </div>
-        <button 
+
+        {/* 主题切换 */}
+        <button
+          onClick={toggleTheme}
+          className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-secondary/50"
+          aria-label="Toggle theme"
+        >
+          {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+        </button>
+
+        {/* GitHub */}
+        <a
+          href="https://github.com/EmmaStoneX/NetPulse/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-secondary/50"
+          aria-label="GitHub"
+        >
+          <Github className="w-5 h-5" />
+        </a>
+
+        {/* 设置 */}
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-secondary/50"
+          aria-label={t('settings.title')}
+        >
+          <Settings className="w-5 h-5" />
+        </button>
+
+        {/* 菜单按钮 */}
+        <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+          className="p-2 text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-secondary/50 ml-1"
           aria-label="Toggle menu"
         >
           {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -153,7 +159,7 @@ export const Header: React.FC<HeaderProps> = ({ isLoading = false }) => {
           <div className="px-4 py-4 space-y-3">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <div className="relative flex items-center justify-center">
-                <span 
+                <span
                   className={cn(
                     "w-2 h-2 rounded-full bg-green-500",
                     isLoading && "animate-pulse"

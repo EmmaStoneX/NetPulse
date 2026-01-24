@@ -10,15 +10,16 @@ import { ShareModal } from './components/ShareModal';
 import { SharedView } from './components/SharedView';
 import { analyzeEvent } from './services/geminiService';
 import { AnalysisResult, LoadingState, AnalysisMode } from './types';
-import { 
-  isShareUrl, 
-  getShareDataFromCurrentUrl, 
+import {
+  isShareUrl,
+  getShareDataFromCurrentUrl,
   getShortShareId,
   fetchShareData,
-  SharedAnalysisData 
+  SharedAnalysisData
 } from './utils/shareUtils';
 import { cn } from './utils/cn';
 import { AlertCircle, Zap, ArrowLeft, Share2, Home } from 'lucide-react';
+import ParticleBackground from './components/ParticleBackground';
 
 type PageView = 'home' | 'privacy' | 'terms' | 'shared' | 'shared-error';
 
@@ -111,13 +112,7 @@ const App: React.FC = () => {
     setIsShareModalOpen(true);
   };
 
-  // Background gradient component
-  const BackgroundEffects = () => (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none">
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/5 blur-[120px]" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-accent/5 blur-[120px]" />
-    </div>
-  );
+
 
   // Footer component
   const Footer = ({ className }: { className?: string }) => (
@@ -135,14 +130,14 @@ const App: React.FC = () => {
           {t('footer.copyright', { year: new Date().getFullYear() })}
         </p>
         <div className="flex items-center gap-3 md:gap-4 text-[10px] md:text-xs">
-          <button 
+          <button
             onClick={() => navigateTo('privacy')}
             className="text-muted-foreground/60 hover:text-foreground transition-colors"
           >
             {t('footer.privacyPolicy')}
           </button>
           <span className="text-border">•</span>
-          <button 
+          <button
             onClick={() => navigateTo('terms')}
             className="text-muted-foreground/60 hover:text-foreground transition-colors"
           >
@@ -157,7 +152,7 @@ const App: React.FC = () => {
   if (currentPage === 'shared-error') {
     return (
       <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 flex flex-col">
-        <BackgroundEffects />
+        <ParticleBackground />
         <main className="relative container mx-auto px-4 sm:px-6 flex-1 flex items-center justify-center">
           <div className="w-full max-w-md mx-auto text-center animate-fade-in">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-destructive/10 text-destructive mb-6">
@@ -192,7 +187,7 @@ const App: React.FC = () => {
   if (currentPage === 'shared' && isLoadingShare) {
     return (
       <div className="min-h-screen bg-background text-foreground selection:bg-primary/30 flex flex-col">
-        <BackgroundEffects />
+        <ParticleBackground />
         <main className="relative container mx-auto px-4 sm:px-6 flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="relative mx-auto w-16 h-16">
@@ -219,12 +214,12 @@ const App: React.FC = () => {
   if (status === LoadingState.COMPLETE && result) {
     return (
       <div className="min-h-screen bg-background text-foreground selection:bg-primary/30">
-        <BackgroundEffects />
+        <ParticleBackground />
 
         {/* 返回按钮和分享按钮 */}
         <div className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border/50">
           <div className="container mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-            <button 
+            <button
               onClick={handleBackToSearch}
               className="text-xs md:text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-secondary/50"
             >
@@ -259,8 +254,8 @@ const App: React.FC = () => {
 
   // 首页/加载/错误页面
   return (
-    <div className="h-screen bg-background text-foreground selection:bg-primary/30 flex flex-col overflow-hidden">
-      <BackgroundEffects />
+    <div className="h-screen text-foreground selection:bg-primary/30 flex flex-col overflow-hidden">
+      <ParticleBackground />
       <Header isLoading={status === LoadingState.SEARCHING} />
 
       <main className="relative container mx-auto px-4 sm:px-6 flex-1 flex items-center justify-center overflow-y-auto">
@@ -296,7 +291,7 @@ const App: React.FC = () => {
             </div>
             <h3 className="text-xl md:text-2xl font-bold text-foreground mb-2">{t('error.title')}</h3>
             <p className="text-sm md:text-base text-muted-foreground mb-6 md:mb-8">{errorMsg}</p>
-            <button 
+            <button
               onClick={() => setStatus(LoadingState.IDLE)}
               className="px-5 md:px-6 py-2 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-lg transition-colors text-sm md:text-base"
             >
