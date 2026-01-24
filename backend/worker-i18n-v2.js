@@ -161,13 +161,6 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
-    // 域名重定向：将 zxvmax.site 重定向到 zxvmax.com
-    if (url.hostname.includes('zxvmax.site')) {
-      const newUrl = new URL(request.url);
-      newUrl.hostname = newUrl.hostname.replace('zxvmax.site', 'zxvmax.com');
-      return Response.redirect(newUrl.toString(), 301);
-    }
-
     // 1. 处理 CORS 预检请求
     if (request.method === "OPTIONS") {
       return new Response(null, { headers: corsHeaders });
