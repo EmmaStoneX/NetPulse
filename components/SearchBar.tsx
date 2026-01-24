@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, Sparkles, ArrowRight, Zap, BrainCircuit } from 'lucide-react';
+import { Search, TrendingUp, ArrowRight, Zap, BrainCircuit } from 'lucide-react';
 import { AnalysisMode } from '../types';
 import { getTrendingTopics } from '../services/geminiService';
 import { cn } from '../utils/cn';
@@ -41,9 +41,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
   const fetchTrendingTopics = useCallback(async (lang: string) => {
     setIsLoadingTopics(true);
     const langCode = lang.startsWith('zh') ? 'zh' : 'en';
-    
+
     setTrendingTopics(getDefaultTopics(lang));
-    
+
     try {
       console.log(`[SearchBar] Fetching trending topics for lang=${langCode}`);
       const topics = await getTrendingTopics(langCode);
@@ -108,8 +108,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
             onClick={() => setMode('fast')}
             className={cn(
               "flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition-all",
-              mode === 'fast' 
-                ? 'bg-amber-500/20 text-amber-500 dark:text-amber-400 shadow-sm border border-amber-500/20' 
+              mode === 'fast'
+                ? 'bg-amber-500/20 text-amber-500 dark:text-amber-400 shadow-sm border border-amber-500/20'
                 : 'text-muted-foreground hover:text-foreground'
             )}
           >
@@ -120,8 +120,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
             onClick={() => setMode('deep')}
             className={cn(
               "flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-medium transition-all",
-              mode === 'deep' 
-                ? 'bg-primary/20 text-primary shadow-sm border border-primary/20' 
+              mode === 'deep'
+                ? 'bg-primary/20 text-primary shadow-sm border border-primary/20'
                 : 'text-muted-foreground hover:text-foreground'
             )}
           >
@@ -185,7 +185,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
               "text-secondary-foreground transition-colors flex items-center gap-1 md:gap-1.5"
             )}
           >
-            <Sparkles className="w-2.5 h-2.5 md:w-3 md:h-3 text-yellow-500" />
+            <TrendingUp className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" />
             <span className="truncate max-w-[120px] md:max-w-none">{topic}</span>
           </button>
         ))}
