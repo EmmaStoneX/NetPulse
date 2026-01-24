@@ -221,10 +221,15 @@ const App: React.FC = () => {
           <div className="container mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
             <button
               onClick={handleBackToSearch}
-              className="text-xs md:text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-secondary/50"
+              className="group flex items-center gap-2 px-4 py-2 rounded-full 
+                         bg-background/50 backdrop-blur-md border border-border/50 
+                         hover:bg-secondary/50 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5
+                         transition-all duration-300 ease-out"
             >
-              <ArrowLeft className="w-4 h-4" />
-              {t('result.backToSearch')}
+              <ArrowLeft className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:-translate-x-1 transition-all duration-300" />
+              <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                {t('result.backToSearch')}
+              </span>
             </button>
             <ShareButton
               analysisResult={result}
