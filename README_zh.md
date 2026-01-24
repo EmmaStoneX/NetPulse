@@ -8,7 +8,7 @@
 
 **NetPulse: 事件视界** 是一款基于搜索增强生成的智能互联网事件分析器。它能将零散的网络信息转化为结构化的深度洞察，为重大的科技与互联网事件提供实时摘要、核心影响分析以及历史镜像对比。
 <p align="center">
-  <img src="https://img.0rzz.ggff.net/netpulse-chs.png?v=3" alt="NetPulse 界面预览" width="100%">
+  <img src="https://img.0rzz.ggff.net/netpulse_chs.png" alt="NetPulse 界面预览" width="100%">
 </p>
 
 

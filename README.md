@@ -9,7 +9,7 @@
 **NetPulse** is an intelligent internet event analyzer powered by search grounding. It transforms scattered web information into structured insights, providing real-time summaries, core impact analysis, and historical context comparisons for major tech and internet events.
 
 <p align="center">
-<img src="https://img.0rzz.ggff.net/netpulse-eng.png?v=3" alt="NetPulse 界面预览" width="100%">
+<img src="https://img.0rzz.ggff.net/netpulse_eng.png" alt="NetPulse 界面预览" width="100%">
 </p>
 
 
