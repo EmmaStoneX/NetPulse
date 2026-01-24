@@ -201,24 +201,12 @@ export default {
 
     // 7. 静态资源（默认）
     try {
-      // 尝试获取静态资源
-      let response = await env.ASSETS.fetch(request);
-
-      // 如果是 favicon.ico 的 404，直接返回
+      const response = await env.ASSETS.fetch(request);
       if (response.status === 404 && url.pathname.endsWith("favicon.ico")) {
         return new Response(null, { status: 404 });
       }
-
-      // 对于 SPA 路由（非静态资源文件的 404），返回 index.html
-      if (response.status === 404 && !url.pathname.includes('.')) {
-        // 构造对 index.html 的请求
-        const indexUrl = new URL('/', request.url);
-        response = await env.ASSETS.fetch(new Request(indexUrl, request));
-      }
-
       return response;
     } catch (e) {
-      console.error("[Assets] Error:", e);
       return new Response("Not Found", { status: 404 });
     }
   }
