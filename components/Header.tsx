@@ -21,14 +21,15 @@ export const Header: React.FC<HeaderProps> = ({ isLoading = false }) => {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const shouldBeDark = savedTheme ? savedTheme === 'dark' : prefersDark;
     setIsDark(shouldBeDark);
-    document.body.classList.toggle('dark', shouldBeDark);
+    // 同步状态（内联脚本已在渲染前设置，这里确保 React 状态正确）
+    document.documentElement.classList.toggle('dark', shouldBeDark);
   }, []);
 
   // 切换主题
   const toggleTheme = () => {
     const newIsDark = !isDark;
     setIsDark(newIsDark);
-    document.body.classList.toggle('dark', newIsDark);
+    document.documentElement.classList.toggle('dark', newIsDark);
     localStorage.setItem('netpulse_theme', newIsDark ? 'dark' : 'light');
   };
 
