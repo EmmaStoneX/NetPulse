@@ -4,12 +4,83 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NetPulse: Event Horizon</title>
+
+  <!-- Primary Meta Tags -->
+  <title>NetPulse: Event Horizon - AI-Powered Internet Event Analyzer</title>
+  <meta name="title" content="NetPulse: Event Horizon - AI-Powered Internet Event Analyzer" />
+  <meta name="description"
+    content="NetPulse transforms scattered web information into structured insights. Get real-time summaries, impact analysis, and historical comparisons for major tech events powered by Gemini AI and search grounding technology." />
+  <meta name="keywords"
+    content="AI event analyzer, tech news analysis, internet events, Gemini AI, search grounding, real-time analysis, historical comparison, NetPulse" />
+  <meta name="author" content="NetPulse Team" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://netpulse.zxvmax.com" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://netpulse.zxvmax.com/" />
+  <meta property="og:title" content="NetPulse: Event Horizon - AI-Powered Internet Event Analyzer" />
+  <meta property="og:description"
+    content="Transform scattered web information into structured insights. Real-time summaries, impact analysis, and historical comparisons for major tech events." />
+  <meta property="og:image" content="https://netpulse.zxvmax.com/og-image.png" />
+  <meta property="og:site_name" content="NetPulse" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="zh_CN" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://netpulse.zxvmax.com/" />
+  <meta name="twitter:title" content="NetPulse: Event Horizon - AI-Powered Internet Event Analyzer" />
+  <meta name="twitter:description"
+    content="Transform scattered web information into structured insights. Real-time summaries, impact analysis, and historical comparisons for major tech events." />
+  <meta name="twitter:image" content="https://netpulse.zxvmax.com/og-image.png" />
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+  <!-- Theme Color -->
+  <meta name="theme-color" content="#7c3aed" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#1e1b4b" media="(prefers-color-scheme: dark)" />
+
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "NetPulse: Event Horizon",
+    "url": "https://netpulse.zxvmax.com",
+    "description": "An intelligent internet event analyzer that transforms scattered web information into structured insights using AI-powered search grounding technology.",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Web Browser",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "featureList": [
+      "Real-time event analysis",
+      "Historical comparison",
+      "Bilingual support (English/Chinese)",
+      "AI-powered insights with Gemini",
+      "Search grounding with Tavily",
+      "Share analysis results"
+    ],
+    "author": {
+      "@type": "Organization",
+      "name": "NetPulse Team",
+      "url": "https://github.com/EmmaStoneX/NetPulse"
+    }
+  }
+  </script>
+
+  <!-- Fonts -->
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
     rel="stylesheet">
+
+  <!-- Theme Detection (prevent flash) -->
   <script>
-    // 在页面渲染前检测主题，防止闪烁
     (function () {
       var saved = localStorage.getItem('netpulse_theme');
       var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -19,12 +90,65 @@
       }
     })();
   </script>
+
   <!-- Umami Analytics -->
   <script defer src="https://cloud.umami.is/script.js" data-website-id="d3ea626e-bd75-4a55-82e8-090294ea6517"></script>
 </head>
 
 <body>
   <div id="root"></div>
+
+  <!-- Noscript fallback for crawlers and users without JavaScript -->
+  <noscript>
+    <div
+      style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px 20px; color: #1a1a2e;">
+      <h1
+        style="font-size: 2.5rem; margin-bottom: 1rem; background: linear-gradient(135deg, #7c3aed, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        NetPulse: Event Horizon
+      </h1>
+      <p style="font-size: 1.25rem; color: #64748b; margin-bottom: 2rem;">
+        AI-Powered Internet Event Analyzer
+      </p>
+
+      <h2 style="font-size: 1.5rem; margin: 2rem 0 1rem;">What is NetPulse?</h2>
+      <p style="line-height: 1.8; color: #475569;">
+        NetPulse is an intelligent internet event analyzer powered by search grounding technology.
+        It transforms scattered web information into structured insights, providing real-time summaries,
+        core impact analysis, and historical context comparisons for major tech and internet events.
+      </p>
+
+      <h2 style="font-size: 1.5rem; margin: 2rem 0 1rem;">Key Features</h2>
+      <ul style="line-height: 2; color: #475569;">
+        <li><strong>Search Grounding:</strong> Uses Tavily API to fetch real-time, accurate context from the web</li>
+        <li><strong>Dual Analysis Modes:</strong> Quick Mode (~15s) with Gemini Flash or Deep Mode (~60s) with Gemini
+          Pro</li>
+        <li><strong>Historical Echoes:</strong> Compares current events with historical precedents to find patterns</li>
+        <li><strong>Bilingual Support:</strong> Full internationalization with Chinese and English interfaces</li>
+        <li><strong>Share Analysis:</strong> Generate short links to share analysis results with others</li>
+        <li><strong>Custom API Keys:</strong> Advanced users can configure their own API keys</li>
+      </ul>
+
+      <h2 style="font-size: 1.5rem; margin: 2rem 0 1rem;">Technology Stack</h2>
+      <ul style="line-height: 2; color: #475569;">
+        <li><strong>Frontend:</strong> React 19, TypeScript, Vite, Tailwind CSS</li>
+        <li><strong>Backend:</strong> Cloudflare Workers</li>
+        <li><strong>AI Model:</strong> Google Gemini 3.0 Pro / Flash</li>
+        <li><strong>Search:</strong> Tavily AI Search API</li>
+      </ul>
+
+      <h2 style="font-size: 1.5rem; margin: 2rem 0 1rem;">Open Source</h2>
+      <p style="line-height: 1.8; color: #475569;">
+        NetPulse is open source and available on GitHub:
+        <a href="https://github.com/EmmaStoneX/NetPulse" style="color: #7c3aed;">github.com/EmmaStoneX/NetPulse</a>
+      </p>
+
+      <p
+        style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 0.875rem;">
+        © 2026 NetPulse. Powered by Gemini & Tavily Search.
+      </p>
+    </div>
+  </noscript>
+
   <script type="module" src="/index.tsx"></script>
 </body>
 
