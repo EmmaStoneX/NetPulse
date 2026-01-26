@@ -8,15 +8,22 @@ interface Particle {
   size: number;
   alpha: number;
   baseAlpha: number;
+  pulseSpeed: number;
+  pulseOffset: number;
 }
 
 const ParticleBackground: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const mouseRef = useRef({ x: 0, y: 0, isHovering: false, lastMoveTime: 0 });
+  const mouseRef = useRef({ x: -1000, y: -1000 }); // Initialize off-screen
   const particlesRef = useRef<Particle[]>([]);
   const animationFrameRef = useRef<number>();
-  const isDarkRef = useRef(true); // Track dark mode state
+  const isDarkRef = useRef(true);
+
+  // Constants from reference
+  const CONNECTION_DISTANCE = 120;
+  const MOUSE_RADIUS = 150;
+  const BASE_SPEED = 0.3;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -26,13 +33,11 @@ const ParticleBackground: React.FC = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Check initial theme
     const checkTheme = () => {
       isDarkRef.current = document.documentElement.classList.contains('dark') || document.body.classList.contains('dark');
     };
     checkTheme();
 
-    // Observer for theme changes
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.attributeName === 'class') {
@@ -47,6 +52,7 @@ const ParticleBackground: React.FC = () => {
     const initParticles = () => {
       const width = container.clientWidth;
       const height = container.clientHeight;
+      // Adjust density to match reference feel (approx 100 particles for standard screen)
       const particleCount = Math.floor((width * height) / 15000);
 
       const particles: Particle[] = [];
@@ -54,11 +60,13 @@ const ParticleBackground: React.FC = () => {
         particles.push({
           x: Math.random() * width,
           y: Math.random() * height,
-          vx: (Math.random() - 0.5) * 0.2,
-          vy: (Math.random() - 0.5) * 0.2,
-          size: Math.random() * 2 + 1,
-          alpha: Math.random() * 0.5 + 0.1,
-          baseAlpha: Math.random() * 0.5 + 0.1,
+          vx: (Math.random() - 0.5) * BASE_SPEED,
+          vy: (Math.random() - 0.5) * BASE_SPEED,
+          size: Math.random() * 3 + 1.5, // 1.5px to 4.5px
+          baseAlpha: Math.random() * 0.5 + 0.1, // 0.1 to 0.6
+          alpha: 0, // Will be set in update
+          pulseSpeed: 0.02 + Math.random() * 0.03,
+          pulseOffset: Math.random() * Math.PI * 2,
         });
       }
       particlesRef.current = particles;
@@ -78,14 +86,12 @@ const ParticleBackground: React.FC = () => {
         mouseRef.current = {
           x: e.clientX - rect.left,
           y: e.clientY - rect.top,
-          isHovering: true,
-          lastMoveTime: Date.now(),
         };
       }
     };
 
     const handleMouseLeave = () => {
-      mouseRef.current.isHovering = false;
+      mouseRef.current = { x: -1000, y: -1000 };
     };
 
     const draw = () => {
@@ -94,25 +100,42 @@ const ParticleBackground: React.FC = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const isDark = isDarkRef.current;
-      // Dark mode: bright particles (CornflowerBlue-ish). Light mode: dark particles (Slate-ish)
-      const particleColor = isDark ? '100, 149, 237' : '71, 85, 105';
+      // Reference color: 100, 220, 255 (Cyan/Blueish)
+      // We can keep a fallback for light mode or use the same if it fits
+      const colorRGB = isDark ? '100, 220, 255' : '71, 85, 105';
 
-      // 计算鼠标静止时间
-      const idleTime = Date.now() - mouseRef.current.lastMoveTime;
-      const idleThreshold = 2000; // 2秒后开始排斥
-      const transitionDuration = 1000; // 1秒过渡时间
+      particlesRef.current.forEach((p) => {
+        // 1. Update Physics
 
-      // 计算排斥因子：0 = 纯吸引，1 = 纯排斥
-      let repulsionFactor = 0;
-      if (idleTime > idleThreshold) {
-        repulsionFactor = Math.min((idleTime - idleThreshold) / transitionDuration, 1);
-      }
-
-      // Update and draw particles
-      particlesRef.current.forEach((p, i) => {
-        // Movement
+        // Normal movement
         p.x += p.vx;
         p.y += p.vy;
+
+        // Pulse opacity
+        p.alpha = p.baseAlpha + Math.sin(Date.now() * 0.001 * p.pulseSpeed + p.pulseOffset) * 0.1;
+
+        // Mouse Interaction
+        const dx = mouseRef.current.x - p.x;
+        const dy = mouseRef.current.y - p.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < MOUSE_RADIUS) {
+          const forceDirectionX = dx / distance;
+          const forceDirectionY = dy / distance;
+          const force = (MOUSE_RADIUS - distance) / MOUSE_RADIUS;
+          const directionMultiplier = -1; // Repulsion
+
+          // Push particle gently
+          p.vx += forceDirectionX * force * 0.05 * directionMultiplier;
+          p.vy += forceDirectionY * force * 0.05 * directionMultiplier;
+        }
+
+        // Friction to stabilize velocity
+        const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+        if (speed > BASE_SPEED * 2) {
+          p.vx *= 0.95;
+          p.vy *= 0.95;
+        }
 
         // Boundary wrap
         if (p.x < 0) p.x = canvas.width;
@@ -120,38 +143,27 @@ const ParticleBackground: React.FC = () => {
         if (p.y < 0) p.y = canvas.height;
         if (p.y > canvas.height) p.y = 0;
 
-        // Mouse interaction
-        if (mouseRef.current.isHovering) {
-          const dx = mouseRef.current.x - p.x;
-          const dy = mouseRef.current.y - p.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          const maxDistance = 200;
-
-          if (distance < maxDistance) {
-            const force = (maxDistance - distance) / maxDistance;
-            // 混合吸引和排斥：正值吸引，负值排斥
-            const direction = 1 - 2 * repulsionFactor; // 1 -> -1
-            const forceMultiplier = 0.02 * direction;
-
-            p.x += dx * force * forceMultiplier;
-            p.y += dy * force * forceMultiplier;
-            p.alpha = Math.min(p.baseAlpha + force * 0.5, 1);
-          } else {
-            p.alpha = p.baseAlpha;
-          }
-        } else {
-          p.alpha = p.baseAlpha;
-        }
-
-        // Draw particle
+        // 2. Draw Particle
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${particleColor}, ${p.alpha})`;
+        ctx.fillStyle = `rgba(${colorRGB}, ${p.alpha})`;
         ctx.fill();
+
+        // Glow effect for larger particles
+        if (p.size > 3 && isDark) {
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = `rgba(${colorRGB}, 0.5)`;
+        } else {
+          ctx.shadowBlur = 0;
+        }
+        // Reset shadow for other elements
+        ctx.shadowBlur = 0;
       });
 
-      // Draw connections
+      // 3. Draw Connections
       const particles = particlesRef.current;
+      ctx.lineWidth = 0.5;
+
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const p1 = particles[i];
@@ -159,14 +171,13 @@ const ParticleBackground: React.FC = () => {
           const dx = p1.x - p2.x;
           const dy = p1.y - p2.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
-          const maxConnectDistance = 100;
 
-          if (distance < maxConnectDistance) {
-            const opacity = (1 - distance / maxConnectDistance) * 0.2;
+          if (distance < CONNECTION_DISTANCE) {
+            const opacity = 1 - (distance / CONNECTION_DISTANCE);
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(${particleColor}, ${opacity})`;
+            ctx.strokeStyle = `rgba(${colorRGB}, ${opacity * 0.2})`;
             ctx.stroke();
           }
         }
@@ -175,7 +186,6 @@ const ParticleBackground: React.FC = () => {
       animationFrameRef.current = requestAnimationFrame(draw);
     };
 
-    // Initialize
     handleResize();
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove);
@@ -199,10 +209,10 @@ const ParticleBackground: React.FC = () => {
       <canvas
         ref={canvasRef}
         className="block w-full h-full"
-      // Remove mix-blend-mode as it might interfere with light mode visibility
       />
-      {/* Gradient overlay only for dark mode depth, controlled by CSS classes if needed, or simple conditional rendering */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background/80 pointer-events-none" />
+      {/* Optional: Gradient overlay to match the 'Deep Slate' feel if desired, 
+          but keeping it subtle to respect the app's existing theme */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/10 to-background/50 pointer-events-none" />
     </div>
   );
 };
