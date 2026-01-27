@@ -33,6 +33,59 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
   const [trendingTopics, setTrendingTopics] = useState<string[]>([]);
   const [isLoadingTopics, setIsLoadingTopics] = useState(false);
 
+  // Typewriter effect state
+  const [currentPlaceholder, setCurrentPlaceholder] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+
+  // Get typewriter placeholders from translation
+  const typewriterTexts = t('searchBar.typewriterPlaceholders', { returnObjects: true }) as string[];
+  const hasTypewriterTexts = Array.isArray(typewriterTexts) && typewriterTexts.length > 0;
+
+  useEffect(() => {
+    if (!hasTypewriterTexts || isFocused || input) {
+      setIsTyping(false);
+      return;
+    }
+
+    let currentIndex = 0;
+    let currentText = '';
+    let isDeleting = false;
+    let loopNum = 0;
+    let typingSpeed = 100;
+
+    const handleType = () => {
+      const i = loopNum % typewriterTexts.length;
+      const fullText = typewriterTexts[i];
+
+      if (isDeleting) {
+        currentText = fullText.substring(0, currentText.length - 1);
+        typingSpeed = 50;
+      } else {
+        currentText = fullText.substring(0, currentText.length + 1);
+        typingSpeed = 100;
+      }
+
+      setCurrentPlaceholder(currentText);
+      setIsTyping(true);
+
+      if (!isDeleting && currentText === fullText) {
+        typingSpeed = 2000; // Pause at end
+        isDeleting = true;
+      } else if (isDeleting && currentText === '') {
+        isDeleting = false;
+        loopNum++;
+        typingSpeed = 500; // Pause before next word
+      }
+
+      timer = setTimeout(handleType, typingSpeed);
+    };
+
+    let timer = setTimeout(handleType, typingSpeed);
+
+    return () => clearTimeout(timer);
+  }, [hasTypewriterTexts, isFocused, input, i18n.language]); // Re-run when language changes
+
   // 获取当前语言的默认话题
   const getDefaultTopics = useCallback((lang: string) => {
     return lang.startsWith('zh') ? DEFAULT_TOPICS_ZH : DEFAULT_TOPICS_EN;
@@ -164,9 +217,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={mode === 'fast' ? t('searchBar.placeholderFast') : t('searchBar.placeholderDeep')}
+            placeholder={isTyping ? currentPlaceholder : (mode === 'fast' ? t('searchBar.placeholderFast') : t('searchBar.placeholderDeep'))}
             className="flex-1 min-w-0 bg-transparent border-none outline-none text-foreground px-2 md:px-4 py-2 md:py-3 text-sm md:text-lg placeholder:text-muted-foreground"
             disabled={isLoading}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
           />
           <button
             type="submit"

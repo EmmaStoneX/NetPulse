@@ -14,7 +14,13 @@
     "placeholderFast": "快速分析事件 (预计 15秒)...",
     "placeholderDeep": "深度分析事件 (预计 60秒)...",
     "analyzeButton": "开始分析",
-    "trendingTopics": "热门话题:"
+    "trendingTopics": "热门话题:",
+    "typewriterPlaceholders": [
+      "在这里输入您的话题...",
+      "GPT-6 今年发布的概率有多大？",
+      "AI 会在 2030 年前取代 50% 的工作吗？",
+      "量子计算何时能破解现有加密？"
+    ]
   },
   "loading": {
     "fastScanning": "快速扫描中...",
