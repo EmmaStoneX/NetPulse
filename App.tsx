@@ -148,6 +148,15 @@ const App: React.FC = () => {
           {t('footer.copyright', { year: new Date().getFullYear() })}
         </p>
         <div className="flex items-center gap-3 md:gap-4 text-[10px] md:text-xs">
+          <a
+            href="https://netpulse.zxvmax.com/about"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground/60 hover:text-foreground transition-colors"
+          >
+            {t('footer.about')}
+          </a>
+          <span className="text-border">•</span>
           <button
             onClick={() => navigateTo('privacy')}
             className="text-muted-foreground/60 hover:text-foreground transition-colors"
