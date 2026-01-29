@@ -125,6 +125,37 @@ function getNextTavilyKey(env) {
 }
 
 // ============================================
+// Umami 事件追踪
+// ============================================
+async function trackEvent(env, eventName, eventData = {}) {
+  const umamiUrl = env.UMAMI_URL;
+  const websiteId = env.UMAMI_WEBSITE_ID;
+  
+  if (!umamiUrl || !websiteId) {
+    return; // Umami 未配置，跳过追踪
+  }
+  
+  try {
+    await fetch(`${umamiUrl}/api/send`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'event',
+        payload: {
+          website: websiteId,
+          name: eventName,
+          data: eventData,
+          url: '/api/analyze',
+          hostname: 'netpulse.zxvmax.com'
+        }
+      })
+    });
+  } catch (e) {
+    console.error('[Umami] Track event failed:', e.message);
+  }
+}
+
+// ============================================
 // 安全的 fetch 包装函数（处理 SSL 错误）
 // ============================================
 async function safeFetch(url, options, retries = 2) {
@@ -155,6 +186,49 @@ async function safeFetch(url, options, retries = 2) {
 }
 
 // ============================================
+// Gemini API 调用（带重试和指数退避）
+// ============================================
+async function callGeminiWithRetry(url, options, maxRetries = 2) {
+  const baseDelay = 1000; // 1秒基础延迟
+  
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch(url, options);
+      
+      if (response.ok) {
+        return response;
+      }
+      
+      // 获取错误信息
+      const errText = await response.text();
+      
+      // 429 (Rate Limit) 或 503 (Service Unavailable) 或 500+ 错误可以重试
+      const isRetryable = response.status === 429 || response.status >= 500;
+      
+      if (!isRetryable || attempt === maxRetries) {
+        console.error(`[Gemini] Request failed (status ${response.status}): ${errText.substring(0, 200)}`);
+        throw new Error(`Gemini API error (${response.status}): ${errText.substring(0, 100)}`);
+      }
+      
+      // 指数退避等待
+      const delay = baseDelay * Math.pow(2, attempt);
+      console.log(`[Gemini] Attempt ${attempt + 1} failed with status ${response.status}, retrying in ${delay}ms...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      
+    } catch (error) {
+      if (attempt === maxRetries) {
+        throw error;
+      }
+      
+      // 网络错误也重试
+      const delay = baseDelay * Math.pow(2, attempt);
+      console.log(`[Gemini] Attempt ${attempt + 1} failed: ${error.message}, retrying in ${delay}ms...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+}
+
+// ============================================
 // 主入口
 // ============================================
 export default {
@@ -168,7 +242,7 @@ export default {
 
     // 2. API 路由: POST /api/analyze
     if (url.pathname === "/api/analyze" && request.method === "POST") {
-      return handleAnalyze(request, env);
+      return handleAnalyze(request, env, ctx);
     }
 
     // 3. API 路由: GET /api/trending
@@ -260,7 +334,8 @@ async function handleExaProxy(request, env) {
 // ============================================
 // 分析接口处理函数
 // ============================================
-async function handleAnalyze(request, env) {
+async function handleAnalyze(request, env, ctx) {
+  let reqBody = null;
   try {
     const geminiKey = env.VITE_GEMINI_API_KEY || env.GEMINI_API_KEY;
     const tavilyKey = getNextTavilyKey(env);
@@ -275,7 +350,7 @@ async function handleAnalyze(request, env) {
     }
 
     // 解析请求体，获取 query, mode, lang
-    const reqBody = await request.json();
+    reqBody = await request.json();
     const query = reqBody.query;
     const mode = reqBody.mode || "deep";
     const lang = reqBody.lang === 'en' ? 'en' : 'zh';
@@ -338,11 +413,12 @@ ${contextString}
 ${promptTemplate.format}
 `;
 
-    // --- Step 3: 调用 Gemini API ---
+    // --- Step 3: 调用 Gemini API (带重试) ---
     const proxyBaseUrl = env.GEMINI_PROXY_URL || "https://generativelanguage.googleapis.com";
     const geminiUrl = `${proxyBaseUrl}/v1/chat/completions`;
+    const startTime = Date.now();
 
-    const geminiResponse = await fetch(geminiUrl, {
+    const geminiResponse = await callGeminiWithRetry(geminiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -353,21 +429,25 @@ ${promptTemplate.format}
         messages: [{ role: "user", content: prompt }],
         stream: false
       })
-    });
-
-    if (!geminiResponse.ok) {
-      const errText = await geminiResponse.text();
-      console.error(`Gemini Proxy Error (${modelId}): ${errText}`);
-      throw new Error(`AI Analysis unavailable (${modelId}).`);
-    }
+    }, 2); // 最多重试 2 次
 
     const geminiData = await geminiResponse.json();
     const text = geminiData.choices?.[0]?.message?.content || promptTemplate.noResult;
+    const duration = Date.now() - startTime;
 
     // 构建来源列表
     const sources = searchResults.map((r) => ({
       uri: r.url,
       title: r.title
+    }));
+
+    // 追踪成功事件
+    ctx.waitUntil(trackEvent(env, 'analysis_success', { 
+      mode, 
+      lang, 
+      model: modelId, 
+      duration,
+      sources_count: sources.length 
     }));
 
     return new Response(JSON.stringify({ rawText: text, sources }), {
@@ -376,6 +456,14 @@ ${promptTemplate.format}
 
   } catch (error) {
     console.error("Worker Error:", error);
+    
+    // 追踪失败事件
+    ctx.waitUntil(trackEvent(env, 'analysis_error', { 
+      error: error.message,
+      mode: reqBody?.mode || 'unknown',
+      lang: reqBody?.lang || 'unknown'
+    }));
+    
     return new Response(JSON.stringify({ error: error.message || "Internal Server Error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
