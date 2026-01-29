@@ -124,36 +124,7 @@ function getNextTavilyKey(env) {
   return key;
 }
 
-// ============================================
-// Umami 事件追踪
-// ============================================
-async function trackEvent(env, eventName, eventData = {}) {
-  const umamiUrl = env.UMAMI_URL;
-  const websiteId = env.UMAMI_WEBSITE_ID;
-  
-  if (!umamiUrl || !websiteId) {
-    return; // Umami 未配置，跳过追踪
-  }
-  
-  try {
-    await fetch(`${umamiUrl}/api/send`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type: 'event',
-        payload: {
-          website: websiteId,
-          name: eventName,
-          data: eventData,
-          url: '/api/analyze',
-          hostname: 'netpulse.zxvmax.com'
-        }
-      })
-    });
-  } catch (e) {
-    console.error('[Umami] Track event failed:', e.message);
-  }
-}
+
 
 // ============================================
 // 安全的 fetch 包装函数（处理 SSL 错误）
@@ -441,28 +412,12 @@ ${promptTemplate.format}
       title: r.title
     }));
 
-    // 追踪成功事件
-    ctx.waitUntil(trackEvent(env, 'analysis_success', { 
-      mode, 
-      lang, 
-      model: modelId, 
-      duration,
-      sources_count: sources.length 
-    }));
-
     return new Response(JSON.stringify({ rawText: text, sources }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
 
   } catch (error) {
     console.error("Worker Error:", error);
-    
-    // 追踪失败事件
-    ctx.waitUntil(trackEvent(env, 'analysis_error', { 
-      error: error.message,
-      mode: reqBody?.mode || 'unknown',
-      lang: reqBody?.lang || 'unknown'
-    }));
     
     return new Response(JSON.stringify({ error: error.message || "Internal Server Error" }), {
       status: 500,

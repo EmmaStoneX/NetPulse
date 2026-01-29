@@ -20,7 +20,7 @@ import {
 import { cn } from './utils/cn';
 import { AlertCircle, Zap, ArrowLeft, Share2, Home } from 'lucide-react';
 import ParticleBackground from './components/ParticleBackground';
-import { trackAnalysisCompleted, trackShareClicked, trackSharedViewAccessed } from './utils/analytics';
+import { trackAnalysisCompleted, trackShareClicked, trackSharedViewAccessed, trackAnalysisError, ErrorType } from './utils/analytics';
 
 type PageView = 'home' | 'privacy' | 'terms' | 'shared' | 'shared-error';
 
@@ -102,14 +102,48 @@ const App: React.FC = () => {
         success: true,
         duration: Date.now() - analysisStartTime.current,
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setErrorMsg(t('error.message'));
+      // 根据错误类型显示不同的提示
+      const errorMessage = err?.message || '';
+      let errorKey = 'error.message'; // 默认错误消息
+      let errorType: ErrorType = 'unknown';
+      
+      if (errorMessage.includes('429') || errorMessage.toLowerCase().includes('rate limit')) {
+        errorKey = 'error.rateLimit';
+        errorType = 'rate_limit';
+      } else if (errorMessage.includes('503') || errorMessage.includes('502') || errorMessage.toLowerCase().includes('overload')) {
+        errorKey = 'error.serverOverload';
+        errorType = 'server_overload';
+      } else if (errorMessage.toLowerCase().includes('network') || errorMessage.toLowerCase().includes('fetch') || errorMessage.toLowerCase().includes('failed to fetch')) {
+        errorKey = 'error.networkError';
+        errorType = 'network_error';
+      } else if (errorMessage.toLowerCase().includes('timeout') || errorMessage.toLowerCase().includes('timed out')) {
+        errorKey = 'error.timeout';
+        errorType = 'timeout';
+      } else if (errorMessage.toLowerCase().includes('api key') || errorMessage.toLowerCase().includes('missing key') || errorMessage.toLowerCase().includes('configuration')) {
+        errorKey = 'error.apiKeyError';
+        errorType = 'api_key_error';
+      } else if (errorMessage.toLowerCase().includes('invalid') || errorMessage.toLowerCase().includes('parse')) {
+        errorKey = 'error.invalidResponse';
+        errorType = 'invalid_response';
+      }
+      
+      setErrorMsg(t(errorKey));
       setStatus(LoadingState.ERROR);
-      // 追踪分析失败
+      
+      // 追踪分析失败（通用）
       trackAnalysisCompleted({
         mode,
         success: false,
+        duration: Date.now() - analysisStartTime.current,
+      });
+      
+      // 追踪错误类型（细分）
+      trackAnalysisError({
+        mode,
+        errorType,
+        errorMessage: errorMessage.substring(0, 200), // 截断过长的错误信息
         duration: Date.now() - analysisStartTime.current,
       });
     }

@@ -123,3 +123,27 @@ export function trackSharedViewAccessed(): void {
 export function trackGitHubClicked(): void {
     trackEvent('github_clicked');
 }
+
+/**
+ * 错误类型枚举
+ */
+export type ErrorType = 
+    | 'rate_limit'      // 429 请求过于频繁
+    | 'server_overload' // 502/503 服务器过载
+    | 'network_error'   // 网络连接失败
+    | 'timeout'         // 请求超时
+    | 'api_key_error'   // API Key 配置错误
+    | 'invalid_response'// 无效响应
+    | 'unknown';        // 未知错误
+
+/**
+ * 追踪分析错误（带错误类型细分）
+ */
+export function trackAnalysisError(data: {
+    mode: 'fast' | 'deep';
+    errorType: ErrorType;
+    errorMessage?: string;
+    duration?: number;
+}): void {
+    trackEvent('analysis_error', data);
+}

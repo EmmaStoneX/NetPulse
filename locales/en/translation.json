@@ -30,7 +30,13 @@
   "error": {
     "title": "Analysis Failed",
     "message": "Unable to analyze this event. The topic may be too niche or there was a connection issue. Please try again later.",
-    "retry": "Retry"
+    "retry": "Retry",
+    "rateLimit": "Service is busy due to high demand. Please wait a moment and try again.",
+    "serverOverload": "Server is temporarily overloaded. Please try again later.",
+    "networkError": "Network connection failed. Please check your connection and try again.",
+    "timeout": "Request timed out. The server took too long to respond. Please try again later.",
+    "apiKeyError": "Service configuration error. Please contact support or try again later.",
+    "invalidResponse": "Received an invalid response from the server. Please try again later."
   },
   "result": {
     "analysisComplete": "Analysis Complete",
