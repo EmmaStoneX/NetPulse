@@ -25,6 +25,8 @@
 - **Custom API Keys**: Advanced users can configure their own API keys for search (Tavily/Exa) and LLM services (Gemini/DeepSeek/OpenAI/Claude or custom endpoints).
 - **Historical Echoes**: Unique feature that compares current events with historical precedents to find patterns.
 - **Share Analysis**: Generate short links to share analysis results with others. Data stored in Cloudflare KV with 30-day expiration.
+- **Smart Error Handling**: User-friendly error messages based on error type (rate limit, network issues, server overload, etc.).
+- **Analytics Integration**: Built-in Umami analytics for tracking user behavior and error patterns.
 - **Secure Architecture**: API Keys are stored in Cloudflare Worker Secrets. The frontend only communicates with your own backend (`/api/analyze`).
 - **Responsive UI**: A modern, glassmorphism-inspired interface built with **Tailwind CSS**, optimized for mobile and desktop.
 - **Immersive Experience**: New "Event Horizon" space theme with interactive particle background and smooth animations.
@@ -64,7 +66,8 @@ NetPulse/
 │   └── TermsOfService.tsx  # Terms of service page
 ├── utils/
 │   ├── shareUtils.ts       # Share link encoding/decoding utilities
-│   └── apiConfigStore.ts   # API configuration storage
+│   ├── apiConfigStore.ts   # API configuration storage
+│   └── analytics.ts        # Umami analytics tracking utilities
 ├── services/
 │   ├── geminiService.ts    # API service layer
 │   └── directApiService.ts # Direct API calls for custom keys

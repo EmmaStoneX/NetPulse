@@ -24,6 +24,8 @@
 - **自定义 API Key**：高级用户可配置自己的搜索服务（Tavily/Exa）和大模型服务（Gemini/DeepSeek/OpenAI/Claude 或自定义端点）的 API Key。
 - **历史回响**：独创功能，自动将当前事件与历史上的类似事件进行对比，寻找历史的韵脚。
 - **分享功能**：生成短链接分享分析结果，数据存储在 Cloudflare KV 中，30 天有效期。
+- **智能错误提示**：根据错误类型（请求频繁、网络问题、服务器过载等）显示友好的错误提示。
+- **数据分析集成**：内置 Umami 分析，追踪用户行为和错误模式。
 - **安全架构**：API Key 存储在 Cloudflare Worker 的加密环境变量中。前端仅与自建后端 (`/api/analyze`) 通信。
 - **响应式设计**：基于 **Tailwind CSS** 构建的现代化"玻璃拟态"界面，完美适配手机、平板和桌面端。
 - **沉浸式体验**：全新的"事件视界"太空主题，配备交互式粒子背景和流畅的动画效果。
@@ -63,7 +65,8 @@ NetPulse/
 │   └── TermsOfService.tsx  # 使用条款页面
 ├── utils/
 │   ├── shareUtils.ts       # 分享链接编解码工具
-│   └── apiConfigStore.ts   # API 配置存储
+│   ├── apiConfigStore.ts   # API 配置存储
+│   └── analytics.ts        # Umami 分析埋点工具
 ├── services/
 │   ├── geminiService.ts    # API 服务层
 │   └── directApiService.ts # 自定义 Key 直接调用服务
