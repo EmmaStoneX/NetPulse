@@ -436,7 +436,15 @@
         /* Sections */
         .section {
             padding: 80px 0;
-            scroll-margin-top: 80px
+            scroll-margin-top: 80px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center
+        }
+
+        .section > .container {
+            width: 100%
         }
 
         .section-header {
@@ -750,7 +758,8 @@
 
             .section {
                 padding: 60px 0;
-                scroll-margin-top: 70px
+                scroll-margin-top: 70px;
+                min-height: auto
             }
 
             .story-section {
