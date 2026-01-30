@@ -105,7 +105,8 @@
             gap: 10px;
             text-decoration: none;
             color: var(--fg);
-            z-index: 101
+            z-index: 101;
+            flex-shrink: 0
         }
 
         .logo-icon {
@@ -434,7 +435,7 @@
 
         /* Sections */
         .section {
-            padding: 60px 0
+            padding: 80px 0
         }
 
         .section-header {
@@ -693,19 +694,53 @@
         /* Mobile Responsive */
         @media(max-width:768px) {
             .container {
-                padding: 0 20px
+                padding: 0 16px
+            }
+
+            nav {
+                padding: 10px 0
             }
 
             .nav-links {
-                display: none
+                display: none !important
             }
 
             .menu-btn {
-                display: block
+                display: flex !important
+            }
+
+            .ctrl-group {
+                gap: 2px;
+                padding: 3px
+            }
+
+            .ctrl-group .divider {
+                display: none
+            }
+
+            .ctrl-group .launch-btn {
+                display: none !important
+            }
+
+            .lang-btn {
+                padding: 5px 8px;
+                font-size: .7rem
+            }
+
+            .ctrl-group button,
+            .ctrl-group a.icon-btn {
+                padding: 6px
+            }
+
+            .ctrl-group svg {
+                width: 14px;
+                height: 14px
             }
 
             .hero {
-                padding-top: 100px
+                padding-top: 90px;
+                min-height: auto;
+                padding-bottom: 40px
             }
 
             .stats {
@@ -754,8 +789,16 @@
                 width: 100%
             }
 
-            .nav-right .launch-btn {
-                display: none
+            .section {
+                padding: 40px 0
+            }
+
+            .section-header {
+                margin-bottom: 24px
+            }
+
+            .feature-card {
+                padding: 20px
             }
 
             /* Hide Launch button in nav on mobile to save space */
