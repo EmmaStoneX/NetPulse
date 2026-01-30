@@ -237,7 +237,15 @@ export default {
       return handleExaProxy(request, env);
     }
 
-    // 7. 静态资源（默认）
+    // 7. 静态页面路由重写 (无扩展名 -> .html)
+    const staticPages = ['/about', '/privacy', '/terms'];
+    if (staticPages.includes(url.pathname)) {
+      const newUrl = new URL(request.url);
+      newUrl.pathname = url.pathname + '.html';
+      return env.ASSETS.fetch(new Request(newUrl, request));
+    }
+
+    // 8. 静态资源（默认）
     try {
       const response = await env.ASSETS.fetch(request);
       if (response.status === 404 && url.pathname.endsWith("favicon.ico")) {
