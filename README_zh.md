@@ -60,9 +60,7 @@ NetPulse/
 │   ├── ShareModal.tsx      # 分享配置弹窗
 │   ├── SharedView.tsx      # 分享视图页面
 │   ├── SettingsPanel.tsx   # 自定义 API Key 设置面板
-│   ├── LanguageSwitcher.tsx# 响应式语言切换组件
-│   ├── PrivacyPolicy.tsx   # 隐私政策页面
-│   └── TermsOfService.tsx  # 使用条款页面
+│   └── LanguageSwitcher.tsx# 响应式语言切换组件
 ├── utils/
 │   ├── shareUtils.ts       # 分享链接编解码工具
 │   ├── apiConfigStore.ts   # API 配置存储

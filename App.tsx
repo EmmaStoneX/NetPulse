@@ -18,7 +18,7 @@ import {
 import { cn } from './utils/cn';
 import { AlertCircle, Zap, ArrowLeft, Share2, Home } from 'lucide-react';
 import ParticleBackground from './components/ParticleBackground';
-import { trackAnalysisCompleted, trackShareClicked, trackSharedViewAccessed, trackAnalysisError, ErrorType } from './utils/analytics';
+import { trackAnalysisCompleted, trackShareClicked, trackAnalysisError, ErrorType } from './utils/analytics';
 
 type PageView = 'home' | 'shared' | 'shared-error';
 

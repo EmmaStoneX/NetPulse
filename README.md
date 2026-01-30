@@ -61,9 +61,7 @@ NetPulse/
 │   ├── ShareModal.tsx      # Share configuration modal
 │   ├── SharedView.tsx      # Shared analysis view page
 │   ├── SettingsPanel.tsx   # Custom API keys settings panel
-│   ├── LanguageSwitcher.tsx# Responsive language toggle
-│   ├── PrivacyPolicy.tsx   # Privacy policy page
-│   └── TermsOfService.tsx  # Terms of service page
+│   └── LanguageSwitcher.tsx# Responsive language toggle
 ├── utils/
 │   ├── shareUtils.ts       # Share link encoding/decoding utilities
 │   ├── apiConfigStore.ts   # API configuration storage
