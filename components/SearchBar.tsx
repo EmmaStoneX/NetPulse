@@ -26,6 +26,42 @@ const DEFAULT_TOPICS_EN = [
   "New Social Media Regulations"
 ];
 
+// 热门话题缓存 key
+const TRENDING_CACHE_KEY = 'netpulse_trending_topics';
+const TRENDING_CACHE_TTL = 30 * 60 * 1000; // 30 分钟缓存
+
+// 从 localStorage 获取缓存的话题
+const getCachedTopics = (lang: string): string[] | null => {
+  try {
+    const cached = localStorage.getItem(TRENDING_CACHE_KEY);
+    if (!cached) return null;
+    
+    const { topics, timestamp, language } = JSON.parse(cached);
+    const isExpired = Date.now() - timestamp > TRENDING_CACHE_TTL;
+    const isSameLang = language === lang;
+    
+    if (!isExpired && isSameLang && topics?.length > 0) {
+      return topics;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+};
+
+// 缓存话题到 localStorage
+const setCachedTopics = (topics: string[], lang: string) => {
+  try {
+    localStorage.setItem(TRENDING_CACHE_KEY, JSON.stringify({
+      topics,
+      timestamp: Date.now(),
+      language: lang
+    }));
+  } catch {
+    // 忽略存储错误
+  }
+};
+
 export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
   const { t, i18n } = useTranslation();
   const [input, setInput] = useState('');
@@ -91,11 +127,21 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
     return lang.startsWith('zh') ? DEFAULT_TOPICS_ZH : DEFAULT_TOPICS_EN;
   }, []);
 
-  // 获取热门话题（带请求取消）
+  // 获取热门话题（带请求取消和本地缓存）
   const fetchTrendingTopics = useCallback(async (lang: string, signal?: AbortSignal) => {
-    setIsLoadingTopics(true);
     const langCode = lang.startsWith('zh') ? 'zh' : 'en';
-
+    
+    // 1. 先尝试从缓存获取
+    const cachedTopics = getCachedTopics(langCode);
+    if (cachedTopics) {
+      console.log(`[SearchBar] Using cached topics for lang=${langCode}`);
+      setTrendingTopics(cachedTopics);
+      setIsLoadingTopics(false);
+      return;
+    }
+    
+    // 2. 没有缓存，显示默认话题并开始加载
+    setIsLoadingTopics(true);
     setTrendingTopics(getDefaultTopics(lang));
 
     try {
@@ -111,6 +157,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
       if (topics && topics.length > 0) {
         console.log(`[SearchBar] Got ${topics.length} topics:`, topics);
         setTrendingTopics(topics);
+        // 缓存到 localStorage
+        setCachedTopics(topics, langCode);
       }
     } catch (error) {
       if ((error as Error).name === 'AbortError') {
