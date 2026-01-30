@@ -17,9 +17,9 @@
     "trendingTopics": "Trending:",
     "typewriterPlaceholders": [
       "Enter your topic here...",
-      "How likely is GPT-6 releasing this year?",
-      "Will AI replace 50% of jobs by 2030?",
-      "When will quantum computing break current encryption?"
+      "Will GPT-6 release this year?",
+      "AI replacing jobs by 2030?",
+      "Quantum computing vs encryption?"
     ]
   },
   "loading": {
