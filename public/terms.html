@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Terms of Service - NetPulse</title>
+    <meta name="description" content="NetPulse Terms of Service - Read our terms and conditions for using the service." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://netpulse.zxvmax.com/terms" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <script>
+        (function () { var s = localStorage.getItem('netpulse_theme'); var p = window.matchMedia('(prefers-color-scheme:dark)').matches; if (s ? s === 'dark' : p) document.documentElement.classList.add('dark'); })();
+    </script>
+    <style>
+        :root {
+            --primary: hsl(221 83% 53%);
+            --accent: hsl(270 80% 60%);
+            --bg: hsl(210 40% 98%);
+            --bg2: hsl(210 40% 96%);
+            --fg: hsl(222 84% 5%);
+            --muted: hsl(215 16% 47%);
+            --border: hsl(214 32% 91%);
+            --card: hsl(0 0% 100%/0.9);
+            --card-border: hsl(214 32% 91%)
+        }
+
+        .dark {
+            --primary: hsl(210 100% 60%);
+            --accent: hsl(270 80% 70%);
+            --bg: hsl(230 35% 7%);
+            --bg2: hsl(217 30% 18%);
+            --fg: hsl(210 40% 98%);
+            --muted: hsl(215 20% 65%);
+            --border: hsl(217 30% 20%);
+            --card: hsl(230 25% 10%/0.7);
+            --card-border: hsl(217 30% 20%)
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box }
+        html { scroll-behavior: smooth }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            line-height: 1.7;
+            transition: background .3s, color .3s
+        }
+        .container { max-width: 800px; margin: 0 auto; padding: 0 24px }
+
+        /* Navigation */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 14px 0; background: var(--card);
+            backdrop-filter: blur(16px); border-bottom: 1px solid var(--border)
+        }
+        nav .container { display: flex; justify-content: space-between; align-items: center; max-width: 1100px }
+        .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--fg) }
+        .logo-icon {
+            width: 32px; height: 32px; background: var(--primary); border-radius: 8px;
+            display: flex; align-items: center; justify-content: center
+        }
+        .logo-icon svg { width: 18px; height: 18px; stroke: #fff }
+        .logo-text { font-weight: 700; font-size: 1.1rem }
+
+        .nav-right { display: flex; align-items: center; gap: 8px }
+        .ctrl-group {
+            display: flex; align-items: center; gap: 4px; padding: 4px;
+            background: var(--bg2); border-radius: 9999px; border: 1px solid var(--border)
+        }
+        .ctrl-group button { padding: 8px; border-radius: 9999px; background: 0; border: 0; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center }
+        .ctrl-group button:hover { color: var(--fg); background: var(--card) }
+        .ctrl-group svg { width: 16px; height: 16px }
+        .divider { width: 1px; height: 16px; background: var(--border); margin: 0 4px }
+        .lang-btn { padding: 6px 10px; background: 0; border: 0; color: var(--muted); cursor: pointer; font-size: .75rem; font-weight: 600; border-radius: 6px }
+        .lang-btn:hover { color: var(--fg) }
+        .lang-btn.active { background: var(--card); color: var(--fg); box-shadow: 0 1px 2px rgba(0,0,0,0.05) }
+
+        /* Content */
+        main { padding: 120px 0 60px }
+        .back-link {
+            display: inline-flex; align-items: center; gap: 8px;
+            color: var(--muted); text-decoration: none; font-size: .9rem;
+            margin-bottom: 32px; transition: color .2s
+        }
+        .back-link:hover { color: var(--fg) }
+        .back-link svg { width: 16px; height: 16px }
+
+        .page-header { margin-bottom: 40px }
+        .page-header-icon {
+            width: 48px; height: 48px; background: hsl(270 80% 60%/.1);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px
+        }
+        .page-header-icon svg { width: 24px; height: 24px; stroke: var(--accent) }
+        .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 2rem; font-weight: 700; margin-bottom: 8px }
+        .page-meta { color: var(--muted); font-size: .875rem }
+
+        .content-card {
+            background: var(--card); border: 1px solid var(--card-border);
+            border-radius: 16px; padding: 24px; margin-bottom: 20px
+        }
+        .content-card h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 12px; color: var(--fg) }
+        .content-card p { color: var(--muted); margin-bottom: 12px }
+        .content-card p:last-child { margin-bottom: 0 }
+        .content-card strong { color: var(--fg); font-weight: 600 }
+        .content-card ul { color: var(--muted); margin-left: 20px; margin-bottom: 12px }
+        .content-card li { margin-bottom: 6px }
+
+        /* Footer */
+        footer { border-top: 1px solid var(--border); padding: 40px 0 20px }
+        .footer-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px; max-width: 1100px; margin: 0 auto; padding: 0 24px }
+        .footer-links { display: flex; gap: 20px; flex-wrap: wrap }
+        .footer-links a { color: var(--muted); text-decoration: none; font-size: .875rem }
+        .footer-links a:hover { color: var(--fg) }
+        .footer-copy { color: var(--muted); font-size: .8rem }
+
+        /* i18n */
+        [data-lang-en], [data-lang-zh] { display: none }
+        html[lang="en"] [data-lang-en] { display: block }
+        html[lang="zh"] [data-lang-zh] { display: block }
+        html[lang="en"] [data-lang-en].inline { display: inline }
+        html[lang="zh"] [data-lang-zh].inline { display: inline }
+
+        @media(max-width:768px) {
+            .container { padding: 0 16px }
+            main { padding: 100px 0 40px }
+            .page-title { font-size: 1.5rem }
+            .content-card { padding: 20px }
+            .footer-content { flex-direction: column; text-align: center }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="container">
+            <a href="/" class="logo">
+                <div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+                <span class="logo-text">NetPulse</span>
+            </a>
+            <div class="nav-right">
+                <div class="ctrl-group">
+                    <button class="lang-btn" data-lang="zh" onclick="setLang('zh')">中</button>
+                    <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+                    <div class="divider"></div>
+                    <button onclick="toggleTheme()" aria-label="Toggle theme">
+                        <svg id="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+                            <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+                        </svg>
+                        <svg id="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <a href="/" class="back-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                <span data-lang-en class="inline">Back to Home</span>
+                <span data-lang-zh class="inline">返回首页</span>
+            </a>
+
+            <div class="page-header">
+                <div class="page-header-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                </div>
+                <h1 class="page-title" data-lang-en>Terms of Service</h1>
+                <h1 class="page-title" data-lang-zh>使用条款</h1>
+                <p class="page-meta" data-lang-en>Last Updated: January 7, 2026</p>
+                <p class="page-meta" data-lang-zh>最后更新日期：2026年1月7日</p>
+            </div>
+
+            <!-- Intro -->
+            <div class="content-card" data-lang-en>
+                <p>Welcome to NetPulse. Please read these Terms of Service ("Terms") carefully. By accessing or using our service, you agree to be bound by these Terms.</p>
+            </div>
+            <div class="content-card" data-lang-zh>
+                <p>欢迎使用 NetPulse。请仔细阅读以下使用条款（以下简称「条款」）。访问或使用我们的服务即表示您同意受这些条款的约束。</p>
+            </div>
+
+            <!-- Section 1 -->
+            <div class="content-card" data-lang-en>
+                <h2>1. Description of Service</h2>
+                <p>NetPulse is an AI-powered tech event analysis tool. Our service utilizes third-party search engines and large language models to summarize and analyze events queried by users. The analysis results provided are for informational purposes only and do not constitute professional advice.</p>
+            </div>
+            <div class="content-card" data-lang-zh>
+                <h2>1. 服务说明</h2>
+                <p>NetPulse 是一款基于人工智能的科技事件分析工具。我们的服务利用第三方搜索引擎和大型语言模型来总结和分析用户查询的事件。服务提供的分析结果仅供参考，不构成专业建议。</p>
+            </div>
+
+            <!-- Section 2 -->
+            <div class="content-card" data-lang-en>
+                <h2>2. Eligibility</h2>
+                <p>You must be at least 13 years old to use this service. If you are using this service on behalf of an organization, you represent that you have the authority to accept these Terms on behalf of that organization.</p>
+            </div>
+            <div class="content-card" data-lang-zh>
+                <h2>2. 使用资格</h2>
+                <p>您必须年满 13 周岁才能使用本服务。如果您代表某个组织使用本服务，则表示您有权代表该组织接受这些条款。</p>
+            </div>
+
+            <!-- Section 3 -->
+            <div class="content-card" data-lang-en>
+                <h2>3. Acceptable Use</h2>
+                <p>You agree not to use this service for:</p>
+                <ul>
+                    <li>Any illegal or unauthorized purpose.</li>
+                    <li>Distributing malware or conducting any form of cyberattack.</li>
+                    <li>Attempting unauthorized access to our systems or other users' accounts.</li>
+                    <li>Interfering with or disrupting the normal operation of the service.</li>
+                    <li>Generating or spreading misinformation or harmful content.</li>
+                </ul>
+            </div>
+            <div class="content-card" data-lang-zh>
+                <h2>3. 可接受的使用</h2>
+                <p>您同意不会将本服务用于以下目的：</p>
+                <ul>
+                    <li>任何非法或未经授权的目的。</li>
+                    <li>传播恶意软件或进行任何形式的网络攻击。</li>
+                    <li>试图未经授权访问我们的系统或其他用户的账户。</li>
+                    <li>干扰或破坏服务的正常运行。</li>
+                    <li>生成或传播虚假信息或有害内容。</li>
+                </ul>
+            </div>
+
+            <!-- Section 4 -->
+            <div class="content-card" data-lang-en>
+                <h2>4. Intellectual Property</h2>
+                <p>The service and its original content, features, and design are the exclusive property of Cyberceratops and its licensors, protected by copyright, trademark, and other intellectual property laws. You may not copy, modify, distribute, or otherwise exploit our content without our express written permission.</p>
+            </div>
+            <div class="content-card" data-lang-zh>
+                <h2>4. 知识产权</h2>
+                <p>本服务及其原始内容、功能和设计均为 Cyberceratops 及其许可方的专有财产，受版权、商标和其他知识产权法律保护。您不得复制、修改、分发或以其他方式利用我们的内容，除非获得我们的明确书面许可。</p>
+            </div>
+
+            <!-- Section 5 -->
+            <div class="content-card" data-lang-en>
+                <h2>5. Disclaimer</h2>
+                <p>The service is provided on an "as is" and "as available" basis without any warranties, express or implied. We do not guarantee that the service will be uninterrupted, secure, or error-free. Analysis results are generated by AI and may contain inaccuracies or be incomplete. You should use your own judgment and assume the risk of using this information.</p>
+            </div>
+            <div class="content-card" data-lang-zh>
+                <h2>5. 免责声明</h2>
+                <p>本服务按「现状」和「可用」基础提供，不提供任何明示或暗示的保证。我们不保证服务将不间断、安全或无错误。分析结果由人工智能生成，可能存在不准确或不完整之处。您应自行判断并承担使用这些信息的风险。</p>
+            </div>
+
+            <!-- Section 6 -->
+            <div class="content-card" data-lang-en>
+                <h2>6. Limitation of Liability</h2>
+                <p>To the maximum extent permitted by applicable law, Cyberceratops and its affiliates, directors, employees, or agents shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from or related to your use of or inability to use the service.</p>
+            </div>
+            <div class="content-card" data-lang-zh>
+                <h2>6. 责任限制</h2>
+                <p>在适用法律允许的最大范围内，Cyberceratops 及其关联方、董事、员工或代理人不对因使用或无法使用本服务而导致的任何间接、附带、特殊、后果性或惩罚性损害承担责任。</p>
+            </div>
+
+            <!-- Section 7 -->
+            <div class="content-card" data-lang-en>
+                <h2>7. Changes to Terms</h2>
+                <p>We reserve the right to modify or replace these Terms at any time. If there are significant changes, we will endeavor to provide at least 30 days' notice. Your continued use of the service constitutes acceptance of the revised Terms.</p>
+            </div>
+            <div class="content-card" data-lang-zh>
+                <h2>7. 条款变更</h2>
+                <p>我们保留随时修改或替换这些条款的权利。如有重大变更，我们将尽力提供至少 30 天的通知。继续使用本服务即表示您同意修订后的条款。</p>
+            </div>
+
+            <!-- Section 8 -->
+            <div class="content-card" data-lang-en>
+                <h2>8. Contact Us</h2>
+                <p>If you have any questions about these Terms, please contact us at:</p>
+                <p>Email: legal@zxvmax.site</p>
+            </div>
+            <div class="content-card" data-lang-zh>
+                <h2>8. 联系我们</h2>
+                <p>如果您对这些条款有任何疑问，请通过以下方式联系我们：</p>
+                <p>电子邮件：legal@zxvmax.site</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <a href="/" class="logo">
+                <div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+                <span class="logo-text">NetPulse</span>
+            </a>
+            <div class="footer-links">
+                <a href="https://github.com/EmmaStoneX/NetPulse" target="_blank">GitHub</a>
+                <a href="/privacy"><span data-lang-en class="inline">Privacy</span><span data-lang-zh class="inline">隐私政策</span></a>
+                <a href="/terms"><span data-lang-en class="inline">Terms</span><span data-lang-zh class="inline">使用条款</span></a>
+            </div>
+            <div class="footer-copy">© 2026 Cyberceratops. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <script>
+        function updateThemeIcons() { var d = document.documentElement.classList.contains('dark'); document.getElementById('sun-icon').style.display = d ? 'block' : 'none'; document.getElementById('moon-icon').style.display = d ? 'none' : 'block' }
+        function toggleTheme() { var d = document.documentElement.classList.toggle('dark'); localStorage.setItem('netpulse_theme', d ? 'dark' : 'light'); updateThemeIcons() }
+        updateThemeIcons();
+        function setLang(l) { document.documentElement.lang = l; localStorage.setItem('netpulse_lang', l); document.querySelectorAll('.lang-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.lang === l) }) }
+        (function () { var s = localStorage.getItem('netpulse_lang') || ((navigator.language || '').startsWith('zh') ? 'zh' : 'en'); document.documentElement.lang = s; document.querySelectorAll('.lang-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.lang === s) }) })();
+    </script>
+</body>
+
+</html>

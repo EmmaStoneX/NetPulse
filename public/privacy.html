@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Privacy Policy - NetPulse</title>
+    <meta name="description" content="NetPulse Privacy Policy - Learn how we collect, use, and protect your data." />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://netpulse.zxvmax.com/privacy" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <script>
+        (function () { var s = localStorage.getItem('netpulse_theme'); var p = window.matchMedia('(prefers-color-scheme:dark)').matches; if (s ? s === 'dark' : p) document.documentElement.classList.add('dark'); })();
+    </script>
+    <style>
+        :root {
+            --primary: hsl(221 83% 53%);
+            --accent: hsl(190 90% 50%);
+            --bg: hsl(210 40% 98%);
+            --bg2: hsl(210 40% 96%);
+            --fg: hsl(222 84% 5%);
+            --muted: hsl(215 16% 47%);
+            --border: hsl(214 32% 91%);
+            --card: hsl(0 0% 100%/0.9);
+            --card-border: hsl(214 32% 91%)
+        }
+
+        .dark {
+            --primary: hsl(210 100% 60%);
+            --accent: hsl(190 90% 50%);
+            --bg: hsl(230 35% 7%);
+            --bg2: hsl(217 30% 18%);
+            --fg: hsl(210 40% 98%);
+            --muted: hsl(215 20% 65%);
+            --border: hsl(217 30% 20%);
+            --card: hsl(230 25% 10%/0.7);
+            --card-border: hsl(217 30% 20%)
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box }
+        html { scroll-behavior: smooth }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            line-height: 1.7;
+            transition: background .3s, color .3s
+        }
+        .container { max-width: 800px; margin: 0 auto; padding: 0 24px }
+
+        /* Navigation */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 14px 0; background: var(--card);
+            backdrop-filter: blur(16px); border-bottom: 1px solid var(--border)
+        }
+        nav .container { display: flex; justify-content: space-between; align-items: center; max-width: 1100px }
+        .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--fg) }
+        .logo-icon {
+            width: 32px; height: 32px; background: var(--primary); border-radius: 8px;
+            display: flex; align-items: center; justify-content: center
+        }
+        .logo-icon svg { width: 18px; height: 18px; stroke: #fff }
+        .logo-text { font-weight: 700; font-size: 1.1rem }
+
+        .nav-right { display: flex; align-items: center; gap: 8px }
+        .ctrl-group {
+            display: flex; align-items: center; gap: 4px; padding: 4px;
+            background: var(--bg2); border-radius: 9999px; border: 1px solid var(--border)
+        }
+        .ctrl-group button { padding: 8px; border-radius: 9999px; background: 0; border: 0; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center }
+        .ctrl-group button:hover { color: var(--fg); background: var(--card) }
+        .ctrl-group svg { width: 16px; height: 16px }
+        .divider { width: 1px; height: 16px; background: var(--border); margin: 0 4px }
+        .lang-btn { padding: 6px 10px; background: 0; border: 0; color: var(--muted); cursor: pointer; font-size: .75rem; font-weight: 600; border-radius: 6px }
+        .lang-btn:hover { color: var(--fg) }
+        .lang-btn.active { background: var(--card); color: var(--fg); box-shadow: 0 1px 2px rgba(0,0,0,0.05) }
+
+        /* Content */
+        main { padding: 120px 0 60px }
+        .back-link {
+            display: inline-flex; align-items: center; gap: 8px;
+            color: var(--muted); text-decoration: none; font-size: .9rem;
+            margin-bottom: 32px; transition: color .2s
+        }
+        .back-link:hover { color: var(--fg) }
+        .back-link svg { width: 16px; height: 16px }
+
+        .page-header { margin-bottom: 40px }
+        .page-header-icon {
+            width: 48px; height: 48px; background: hsl(221 83% 53%/.1);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px
+        }
+        .page-header-icon svg { width: 24px; height: 24px; stroke: var(--primary) }
+        .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 2rem; font-weight: 700; margin-bottom: 8px }
+        .page-meta { color: var(--muted); font-size: .875rem }
+
+        .content-card {
+            background: var(--card); border: 1px solid var(--card-border);
+            border-radius: 16px; padding: 24px; margin-bottom: 20px
+        }
+        .content-card h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 12px; color: var(--fg) }
+        .content-card p { color: var(--muted); margin-bottom: 12px }
+        .content-card p:last-child { margin-bottom: 0 }
+        .content-card strong { color: var(--fg); font-weight: 600 }
+        .content-card ul { color: var(--muted); margin-left: 20px; margin-bottom: 12px }
+        .content-card li { margin-bottom: 6px }
+
+        /* Footer */
+        footer { border-top: 1px solid var(--border); padding: 40px 0 20px }
+        .footer-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px; max-width: 1100px; margin: 0 auto; padding: 0 24px }
+        .footer-links { display: flex; gap: 20px; flex-wrap: wrap }
+        .footer-links a { color: var(--muted); text-decoration: none; font-size: .875rem }
+        .footer-links a:hover { color: var(--fg) }
+        .footer-copy { color: var(--muted); font-size: .8rem }
+
+        /* i18n */
+        [data-lang-en], [data-lang-zh] { display: none }
+        html[lang="en"] [data-lang-en] { display: block }
+        html[lang="zh"] [data-lang-zh] { display: block }
+        html[lang="en"] [data-lang-en].inline { display: inline }
+        html[lang="zh"] [data-lang-zh].inline { display: inline }
+
+        @media(max-width:768px) {
+            .container { padding: 0 16px }
+            main { padding: 100px 0 40px }
+            .page-title { font-size: 1.5rem }
+            .content-card { padding: 20px }
+            .footer-content { flex-direction: column; text-align: center }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="container">
+            <a href="/" class="logo">
+                <div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+                <span class="logo-text">NetPulse</span>
+            </a>
+            <div class="nav-right">
+                <div class="ctrl-group">
+                    <button class="lang-btn" data-lang="zh" onclick="setLang('zh')">中</button>
+                    <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+                    <div class="divider"></div>
+                    <button onclick="toggleTheme()" aria-label="Toggle theme">
+                        <svg id="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+                            <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+                        </svg>
+                        <svg id="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <a href="/" class="back-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                <span data-lang-en class="inline">Back to Home</span>
+                <span data-lang-zh class="inline">返回首页</span>
+            </a>
+
+            <div class="page-header">
+                <div class="page-header-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <h1 class="page-title" data-lang-en>Privacy Policy</h1>
+                <h1 class="page-title" data-lang-zh>隐私政策</h1>
+                <p class="page-meta" data-lang-en>Last Updated: January 7, 2026</p>
+                <p class="page-meta" data-lang-zh>最后更新日期：2026年1月7日</p>
+            </div>
+
+            <!-- Intro -->
+            <div class="content-card" data-lang-en>
+                <p>NetPulse ("we", "us", or "our") values your privacy. This Privacy Policy explains how we collect, use, store, and protect your personal information. By using our service, you agree to the practices described in this policy.</p>
+            </div>
+            <div class="content-card" data-lang-zh>
+                <p>NetPulse（以下简称「我们」）非常重视您的隐私。本隐私政策旨在向您说明我们如何收集、使用、存储和保护您的个人信息。使用我们的服务即表示您同意本政策中描述的做法。</p>
+            </div>
+
+            <!-- Section 1 -->
+            <div class="content-card" data-lang-en>
+                <h2>1. Information We Collect</h2>
+                <p>We may collect the following types of information:</p>
+                <p><strong>Usage Data</strong>: When you use our service, we automatically collect certain information such as your device type, browser type, IP address, access time, and how you interact with the service.</p>
+                <p><strong>Query Data</strong>: When you use our analysis feature, the queries you enter are sent to our servers for processing. We do not store these queries in association with your personal identity.</p>
+                <p><strong>Cookies and Similar Technologies</strong>: We use cookies and similar technologies to store your preferences, such as language settings, to improve your user experience.</p>
+            </div>
+            <div class="content-card" data-lang-zh>
+                <h2>1. 我们收集的信息</h2>
+                <p>我们可能会收集以下类型的信息：</p>
+                <p><strong>使用数据</strong>：当您使用我们的服务时，我们会自动收集某些信息，例如您的设备类型、浏览器类型、IP 地址、访问时间以及您与服务的交互方式。</p>
+                <p><strong>查询数据</strong>：当您使用我们的分析功能时，您输入的查询内容将被发送到我们的服务器进行处理。我们不会将这些查询与您的个人身份信息关联存储。</p>
+                <p><strong>Cookie 和类似技术</strong>：我们使用 Cookie 和类似技术来存储您的语言偏好等设置，以改善您的用户体验。</p>
+            </div>
+
+            <!-- Section 2 -->
+            <div class="content-card" data-lang-en>
+                <h2>2. How We Use Your Information</h2>
+                <p>The information we collect is used for the following purposes:</p>
+                <ul>
+                    <li>To provide, maintain, and improve our service.</li>
+                    <li>To respond to your queries and provide analysis results.</li>
+                    <li>To analyze service usage so we can improve the user experience.</li>
+                    <li>To detect, prevent, and address technical or security issues.</li>
+                </ul>
+            </div>
+            <div class="content-card" data-lang-zh>
+                <h2>2. 我们如何使用您的信息</h2>
+                <p>我们收集的信息用于以下目的：</p>
+                <ul>
+                    <li>提供、维护和改进我们的服务。</li>
+                    <li>响应您的查询并提供分析结果。</li>
+                    <li>分析服务的使用情况，以便我们改进用户体验。</li>
+                    <li>检测、预防和解决技术问题或安全问题。</li>
+                </ul>
+            </div>
+
+            <!-- Section 3 -->
+            <div class="content-card" data-lang-en>
+                <h2>3. Information Sharing</h2>
+                <p>We do not sell your personal information. We may share your information in the following circumstances:</p>
+                <p><strong>Service Providers</strong>: We may share information with third-party service providers who help us operate our service (e.g., Tavily API for search enhancement and Google Gemini API for analysis).</p>
+                <p><strong>Legal Requirements</strong>: We may disclose your information if required by law or to protect our rights.</p>
+            </div>
+            <div class="content-card" data-lang-zh>
+                <h2>3. 信息共享</h2>
+                <p>我们不会出售您的个人信息。我们可能会在以下情况下共享您的信息：</p>
+                <p><strong>服务提供商</strong>：我们可能会与帮助我们运营服务的第三方服务提供商共享信息（例如，用于搜索增强的 Tavily API 和用于分析的 Google Gemini API）。</p>
+                <p><strong>法律要求</strong>：如果法律要求或为了保护我们的权利，我们可能会披露您的信息。</p>
+            </div>
+
+            <!-- Section 4 -->
+            <div class="content-card" data-lang-en>
+                <h2>4. Data Security</h2>
+                <p>We implement reasonable technical and organizational measures to protect your information from unauthorized access, loss, or misuse. However, please note that no method of internet transmission or electronic storage is 100% secure.</p>
+            </div>
+            <div class="content-card" data-lang-zh>
+                <h2>4. 数据安全</h2>
+                <p>我们采取合理的技术和组织措施来保护您的信息免遭未经授权的访问、丢失或滥用。但是，请注意，没有任何互联网传输或电子存储方法是 100% 安全的。</p>
+            </div>
+
+            <!-- Section 5 -->
+            <div class="content-card" data-lang-en>
+                <h2>5. Your Rights</h2>
+                <p>Depending on applicable law, you may have the right to access, correct, or delete your personal information. If you wish to exercise these rights, please contact us using the information provided below.</p>
+            </div>
+            <div class="content-card" data-lang-zh>
+                <h2>5. 您的权利</h2>
+                <p>根据适用法律，您可能有权访问、更正或删除您的个人信息。如果您希望行使这些权利，请通过下方提供的联系方式与我们联系。</p>
+            </div>
+
+            <!-- Section 6 -->
+            <div class="content-card" data-lang-en>
+                <h2>6. Changes to This Policy</h2>
+                <p>We may update this Privacy Policy from time to time. If there are any significant changes, we will post the updated policy on this page and update the "Last Updated" date.</p>
+            </div>
+            <div class="content-card" data-lang-zh>
+                <h2>6. 本政策的变更</h2>
+                <p>我们可能会不时更新本隐私政策。如有任何重大变更，我们将在本页面上发布更新后的政策，并更新「最后更新日期」。</p>
+            </div>
+
+            <!-- Section 7 -->
+            <div class="content-card" data-lang-en>
+                <h2>7. Contact Us</h2>
+                <p>If you have any questions about this Privacy Policy, please contact us at:</p>
+                <p>Email: privacy@zxvmax.site</p>
+            </div>
+            <div class="content-card" data-lang-zh>
+                <h2>7. 联系我们</h2>
+                <p>如果您对本隐私政策有任何疑问，请通过以下方式联系我们：</p>
+                <p>电子邮件：privacy@zxvmax.site</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <a href="/" class="logo">
+                <div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+                <span class="logo-text">NetPulse</span>
+            </a>
+            <div class="footer-links">
+                <a href="https://github.com/EmmaStoneX/NetPulse" target="_blank">GitHub</a>
+                <a href="/privacy"><span data-lang-en class="inline">Privacy</span><span data-lang-zh class="inline">隐私政策</span></a>
+                <a href="/terms"><span data-lang-en class="inline">Terms</span><span data-lang-zh class="inline">使用条款</span></a>
+            </div>
+            <div class="footer-copy">© 2026 Cyberceratops. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <script>
+        function updateThemeIcons() { var d = document.documentElement.classList.contains('dark'); document.getElementById('sun-icon').style.display = d ? 'block' : 'none'; document.getElementById('moon-icon').style.display = d ? 'none' : 'block' }
+        function toggleTheme() { var d = document.documentElement.classList.toggle('dark'); localStorage.setItem('netpulse_theme', d ? 'dark' : 'light'); updateThemeIcons() }
+        updateThemeIcons();
+        function setLang(l) { document.documentElement.lang = l; localStorage.setItem('netpulse_lang', l); document.querySelectorAll('.lang-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.lang === l) }) }
+        (function () { var s = localStorage.getItem('netpulse_lang') || ((navigator.language || '').startsWith('zh') ? 'zh' : 'en'); document.documentElement.lang = s; document.querySelectorAll('.lang-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.lang === s) }) })();
+    </script>
+</body>
+
+</html>

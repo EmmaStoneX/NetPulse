@@ -3,8 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Header } from './components/Header';
 import { SearchBar } from './components/SearchBar';
 import { ResultView } from './components/ResultView';
-import { PrivacyPolicy } from './components/PrivacyPolicy';
-import { TermsOfService } from './components/TermsOfService';
 import { ShareButton } from './components/ShareButton';
 import { ShareModal } from './components/ShareModal';
 import { SharedView } from './components/SharedView';
@@ -22,7 +20,7 @@ import { AlertCircle, Zap, ArrowLeft, Share2, Home } from 'lucide-react';
 import ParticleBackground from './components/ParticleBackground';
 import { trackAnalysisCompleted, trackShareClicked, trackSharedViewAccessed, trackAnalysisError, ErrorType } from './utils/analytics';
 
-type PageView = 'home' | 'privacy' | 'terms' | 'shared' | 'shared-error';
+type PageView = 'home' | 'shared' | 'shared-error';
 
 const App: React.FC = () => {
   const { t } = useTranslation();
@@ -149,11 +147,6 @@ const App: React.FC = () => {
     }
   };
 
-  const navigateTo = (page: PageView) => {
-    setCurrentPage(page);
-    window.scrollTo(0, 0);
-  };
-
   const handleBackToSearch = () => {
     setStatus(LoadingState.IDLE);
     window.scrollTo(0, 0);
@@ -183,27 +176,25 @@ const App: React.FC = () => {
         </p>
         <div className="flex items-center gap-3 md:gap-4 text-[10px] md:text-xs">
           <a
-            href="https://netpulse.zxvmax.com/about"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/about"
             className="text-muted-foreground/60 hover:text-foreground transition-colors"
           >
             {t('footer.about')}
           </a>
           <span className="text-border">•</span>
-          <button
-            onClick={() => navigateTo('privacy')}
+          <a
+            href="/privacy"
             className="text-muted-foreground/60 hover:text-foreground transition-colors"
           >
             {t('footer.privacyPolicy')}
-          </button>
+          </a>
           <span className="text-border">•</span>
-          <button
-            onClick={() => navigateTo('terms')}
+          <a
+            href="/terms"
             className="text-muted-foreground/60 hover:text-foreground transition-colors"
           >
             {t('footer.termsOfService')}
-          </button>
+          </a>
         </div>
       </div>
     </footer>
@@ -259,16 +250,6 @@ const App: React.FC = () => {
         </main>
       </div>
     );
-  }
-
-  // 渲染隐私政策页面
-  if (currentPage === 'privacy') {
-    return <PrivacyPolicy onBack={() => navigateTo('home')} />;
-  }
-
-  // 渲染使用条款页面
-  if (currentPage === 'terms') {
-    return <TermsOfService onBack={() => navigateTo('home')} />;
   }
 
   // 结果页面
