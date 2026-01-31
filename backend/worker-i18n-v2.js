@@ -792,31 +792,34 @@ async function handleAuthGitHub(request, env) {
 // 认证: GitHub OAuth 回调处理
 // ============================================
 async function handleAuthCallback(request, env) {
+  // 获取基础 URL 用于重定向
+  const requestUrl = new URL(request.url);
+  const baseUrl = `${requestUrl.protocol}//${requestUrl.host}`;
+  
   try {
     // 检查 KV 绑定
     if (!env.AUTH_TOKENS) {
       console.error('[Auth Callback] AUTH_TOKENS KV not configured');
-      return Response.redirect('/#/auth?error=service_not_configured', 302);
+      return Response.redirect(`${baseUrl}/#/auth?error=service_not_configured`, 302);
     }
     
-    const url = new URL(request.url);
-    const code = url.searchParams.get('code');
-    const state = url.searchParams.get('state');
-    const error = url.searchParams.get('error');
+    const code = requestUrl.searchParams.get('code');
+    const state = requestUrl.searchParams.get('state');
+    const error = requestUrl.searchParams.get('error');
     
     // 处理用户拒绝授权
     if (error) {
-      return Response.redirect('/#/auth?error=access_denied', 302);
+      return Response.redirect(`${baseUrl}/#/auth?error=access_denied`, 302);
     }
     
     if (!code || !state) {
-      return Response.redirect('/#/auth?error=invalid_request', 302);
+      return Response.redirect(`${baseUrl}/#/auth?error=invalid_request`, 302);
     }
     
     // 验证 state
     const storedState = await env.AUTH_TOKENS.get(`state:${state}`);
     if (!storedState) {
-      return Response.redirect('/#/auth?error=invalid_state', 302);
+      return Response.redirect(`${baseUrl}/#/auth?error=invalid_state`, 302);
     }
     
     // 删除已使用的 state
@@ -840,7 +843,7 @@ async function handleAuthCallback(request, env) {
     
     if (tokenData.error) {
       console.error('[Auth] Token exchange failed:', tokenData.error);
-      return Response.redirect('/#/auth?error=token_exchange_failed', 302);
+      return Response.redirect(`${baseUrl}/#/auth?error=token_exchange_failed`, 302);
     }
     
     const accessToken = tokenData.access_token;
@@ -855,7 +858,7 @@ async function handleAuthCallback(request, env) {
     
     if (!userResponse.ok) {
       console.error('[Auth] Failed to get user info');
-      return Response.redirect('/#/auth?error=user_fetch_failed', 302);
+      return Response.redirect(`${baseUrl}/#/auth?error=user_fetch_failed`, 302);
     }
     
     const userData = await userResponse.json();
@@ -874,11 +877,11 @@ async function handleAuthCallback(request, env) {
     }), { expirationTtl: 86400 }); // 24小时过期
     
     // 重定向到前端，带上 token
-    return Response.redirect(`/#/auth?token=${internalToken}`, 302);
+    return Response.redirect(`${baseUrl}/#/auth?token=${internalToken}`, 302);
     
   } catch (error) {
     console.error('[Auth] Callback error:', error);
-    return Response.redirect('/#/auth?error=server_error', 302);
+    return Response.redirect(`${baseUrl}/#/auth?error=server_error`, 302);
   }
 }
 
