@@ -13,10 +13,32 @@ const CACHE_TTL = 3600 * 1000; // 1 hour
 // Tavily API Key 轮询索引
 let tavilyKeyIndex = 0;
 
+// ============================================
+// CORS 配置 - 限制允许的来源
+// ============================================
+const ALLOWED_ORIGINS = [
+  'https://netpulse.zxvmax.com',
+  'http://localhost:5173',  // 本地开发
+  'http://localhost:4173',  // 本地预览
+];
+
+function getCorsHeaders(request) {
+  const origin = request.headers.get('Origin') || '';
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Credentials": "true"
+  };
+}
+
+// 兼容旧代码的静态 headers（用于不需要动态 origin 的场景）
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://netpulse.zxvmax.com",
   "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type"
+  "Access-Control-Allow-Headers": "Content-Type, Authorization"
 };
 
 // ============================================
@@ -208,7 +230,7 @@ export default {
 
     // 1. 处理 CORS 预检请求
     if (request.method === "OPTIONS") {
-      return new Response(null, { headers: corsHeaders });
+      return new Response(null, { headers: getCorsHeaders(request) });
     }
 
     // 2. API 路由: POST /api/analyze
