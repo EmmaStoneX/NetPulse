@@ -91,11 +91,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
           });
           
           if (response.ok) {
-            const userData = await response.json();
+            const data = await response.json();
+            // API returns { user: {...}, expires_at: ... }
+            const userData = data.user || data;
             setAuth({
               isAuthenticated: true,
               user: userData,
               token: stored.token,
+              expiresAt: stored.expiresAt,
+            });
+            // Update stored user data
+            setStoredAuth({
+              token: stored.token,
+              user: userData,
               expiresAt: stored.expiresAt,
             });
           } else {
@@ -140,7 +148,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
           });
           
           if (response.ok) {
-            const userData = await response.json();
+            const data = await response.json();
+            // API returns { user: {...}, expires_at: ... }
+            const userData = data.user || data;
             const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
             
             setStoredAuth({
