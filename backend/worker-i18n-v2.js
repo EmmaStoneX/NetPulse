@@ -757,18 +757,35 @@ function generateToken() {
 // 认证: 重定向到 GitHub OAuth
 // ============================================
 async function handleAuthGitHub(request, env) {
-  const state = generateToken();
-  
-  // 存储 state 用于验证回调 (5分钟过期)
-  await env.AUTH_TOKENS.put(`state:${state}`, 'valid', { expirationTtl: 300 });
-  
-  const authUrl = new URL('https://github.com/login/oauth/authorize');
-  authUrl.searchParams.set('client_id', GITHUB_CLIENT_ID);
-  authUrl.searchParams.set('redirect_uri', GITHUB_REDIRECT_URI);
-  authUrl.searchParams.set('scope', GITHUB_SCOPE);
-  authUrl.searchParams.set('state', state);
-  
-  return Response.redirect(authUrl.toString(), 302);
+  try {
+    // 检查 KV 绑定
+    if (!env.AUTH_TOKENS) {
+      console.error('[Auth] AUTH_TOKENS KV not configured');
+      return new Response(JSON.stringify({ error: 'Auth service not configured' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    const state = generateToken();
+    
+    // 存储 state 用于验证回调 (5分钟过期)
+    await env.AUTH_TOKENS.put(`state:${state}`, 'valid', { expirationTtl: 300 });
+    
+    const authUrl = new URL('https://github.com/login/oauth/authorize');
+    authUrl.searchParams.set('client_id', GITHUB_CLIENT_ID);
+    authUrl.searchParams.set('redirect_uri', GITHUB_REDIRECT_URI);
+    authUrl.searchParams.set('scope', GITHUB_SCOPE);
+    authUrl.searchParams.set('state', state);
+    
+    return Response.redirect(authUrl.toString(), 302);
+  } catch (error) {
+    console.error('[Auth GitHub] Error:', error);
+    return new Response(JSON.stringify({ error: 'Auth initialization failed: ' + error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
 }
 
 // ============================================
