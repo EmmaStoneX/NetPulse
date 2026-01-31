@@ -792,30 +792,36 @@ async function handleAuthGitHub(request, env) {
 // 认证: GitHub OAuth 回调处理
 // ============================================
 async function handleAuthCallback(request, env) {
-  const url = new URL(request.url);
-  const code = url.searchParams.get('code');
-  const state = url.searchParams.get('state');
-  const error = url.searchParams.get('error');
-  
-  // 处理用户拒绝授权
-  if (error) {
-    return Response.redirect('/#/auth?error=access_denied', 302);
-  }
-  
-  if (!code || !state) {
-    return Response.redirect('/#/auth?error=invalid_request', 302);
-  }
-  
-  // 验证 state
-  const storedState = await env.AUTH_TOKENS.get(`state:${state}`);
-  if (!storedState) {
-    return Response.redirect('/#/auth?error=invalid_state', 302);
-  }
-  
-  // 删除已使用的 state
-  await env.AUTH_TOKENS.delete(`state:${state}`);
-  
   try {
+    // 检查 KV 绑定
+    if (!env.AUTH_TOKENS) {
+      console.error('[Auth Callback] AUTH_TOKENS KV not configured');
+      return Response.redirect('/#/auth?error=service_not_configured', 302);
+    }
+    
+    const url = new URL(request.url);
+    const code = url.searchParams.get('code');
+    const state = url.searchParams.get('state');
+    const error = url.searchParams.get('error');
+    
+    // 处理用户拒绝授权
+    if (error) {
+      return Response.redirect('/#/auth?error=access_denied', 302);
+    }
+    
+    if (!code || !state) {
+      return Response.redirect('/#/auth?error=invalid_request', 302);
+    }
+    
+    // 验证 state
+    const storedState = await env.AUTH_TOKENS.get(`state:${state}`);
+    if (!storedState) {
+      return Response.redirect('/#/auth?error=invalid_state', 302);
+    }
+    
+    // 删除已使用的 state
+    await env.AUTH_TOKENS.delete(`state:${state}`);
+    
     // 用 code 换取 access_token
     const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
@@ -880,87 +886,126 @@ async function handleAuthCallback(request, env) {
 // 认证: 获取当前用户信息
 // ============================================
 async function handleAuthUser(request, env) {
-  const authHeader = request.headers.get('Authorization');
-  const token = authHeader?.replace('Bearer ', '');
-  
-  if (!token) {
-    return new Response(JSON.stringify({ error: 'No token provided' }), {
-      status: 401,
+  try {
+    const authHeader = request.headers.get('Authorization');
+    const token = authHeader?.replace('Bearer ', '');
+    
+    if (!token) {
+      return new Response(JSON.stringify({ error: 'No token provided' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    if (!env.AUTH_TOKENS) {
+      return new Response(JSON.stringify({ error: 'Auth service not configured' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    const userData = await env.AUTH_TOKENS.get(`token:${token}`, 'json');
+    
+    if (!userData) {
+      return new Response(JSON.stringify({ error: 'Invalid token' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    if (userData.expires_at < Date.now()) {
+      await env.AUTH_TOKENS.delete(`token:${token}`);
+      return new Response(JSON.stringify({ error: 'Token expired' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    return new Response(JSON.stringify({
+      user: {
+        id: userData.github_id,
+        login: userData.login,
+        avatar_url: userData.avatar_url
+      },
+      expires_at: userData.expires_at
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('[Auth User] Error:', error);
+    return new Response(JSON.stringify({ error: 'Auth check failed' }), {
+      status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
-  
-  const userData = await env.AUTH_TOKENS.get(`token:${token}`, 'json');
-  
-  if (!userData) {
-    return new Response(JSON.stringify({ error: 'Invalid token' }), {
-      status: 401,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
-  }
-  
-  if (userData.expires_at < Date.now()) {
-    await env.AUTH_TOKENS.delete(`token:${token}`);
-    return new Response(JSON.stringify({ error: 'Token expired' }), {
-      status: 401,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
-  }
-  
-  return new Response(JSON.stringify({
-    user: {
-      id: userData.github_id,
-      login: userData.login,
-      avatar_url: userData.avatar_url
-    },
-    expires_at: userData.expires_at
-  }), {
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-  });
 }
 
 // ============================================
 // 使用量: 获取当前 IP 的使用情况
 // ============================================
 async function handleUsage(request, env) {
-  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
-  const date = new Date().toISOString().split('T')[0];
-  const key = `ip:${ip}:${date}`;
-  
-  // 检查是否是登录用户
-  const authHeader = request.headers.get('Authorization');
-  const token = authHeader?.replace('Bearer ', '');
-  
-  if (token) {
-    const userData = await env.AUTH_TOKENS.get(`token:${token}`, 'json');
-    if (userData && userData.expires_at > Date.now()) {
-      // 登录用户无限制
+  try {
+    const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+    const date = new Date().toISOString().split('T')[0];
+    const key = `ip:${ip}:${date}`;
+    
+    // 检查是否是登录用户
+    const authHeader = request.headers.get('Authorization');
+    const token = authHeader?.replace('Bearer ', '');
+    
+    if (token && env.AUTH_TOKENS) {
+      const userData = await env.AUTH_TOKENS.get(`token:${token}`, 'json');
+      if (userData && userData.expires_at > Date.now()) {
+        // 登录用户无限制
+        return new Response(JSON.stringify({
+          remaining: -1, // -1 表示无限制
+          total: -1,
+          isAuthenticated: true,
+          resetTime: null
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
+    
+    // 访客用户
+    if (!env.USAGE_LIMIT) {
+      // 如果 KV 未配置，返回默认值
       return new Response(JSON.stringify({
-        remaining: -1, // -1 表示无限制
-        total: -1,
-        isAuthenticated: true,
+        remaining: 5,
+        total: 5,
+        isAuthenticated: false,
         resetTime: null
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
+    
+    const usage = await env.USAGE_LIMIT.get(key, 'json') || { count: 0 };
+    const remaining = Math.max(0, 5 - usage.count);
+    
+    // 计算重置时间 (明天 0 点)
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    
+    return new Response(JSON.stringify({
+      remaining: remaining,
+      total: 5,
+      isAuthenticated: false,
+      resetTime: tomorrow.toISOString()
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('[Usage] Error:', error);
+    return new Response(JSON.stringify({
+      remaining: 5,
+      total: 5,
+      isAuthenticated: false,
+      resetTime: null
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
   }
-  
-  // 访客用户
-  const usage = await env.USAGE_LIMIT.get(key, 'json') || { count: 0 };
-  const remaining = Math.max(0, 5 - usage.count);
-  
-  // 计算重置时间 (明天 0 点)
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(0, 0, 0, 0);
-  
-  return new Response(JSON.stringify({
-    remaining: remaining,
-    total: 5,
-    isAuthenticated: false,
-    resetTime: tomorrow.toISOString()
-  }), {
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-  });
 }
