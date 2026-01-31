@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { Activity, Menu, X, Settings, Github, Sun, Moon } from 'lucide-react';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { SettingsPanel } from './SettingsPanel';
+import { UserMenu } from './UserMenu';
+import { UsageIndicator } from './UsageIndicator';
 import { cn } from '../utils/cn';
 import { trackSettingsOpened, trackGitHubClicked } from '../utils/analytics';
 
@@ -78,8 +80,11 @@ export const Header: React.FC<HeaderProps> = ({ isLoading = false }) => {
           <span>{t('header.searchEnabled')}</span>
         </div>
 
+        {/* 使用次数指示器 */}
+        <UsageIndicator />
+
         {/* 图标功能区容器 */}
-        <div className="flex items-center gap-1 p-1 bg-secondary/30 rounded-full border border-border/50 backdrop-blur-sm">
+        <div className="flex items-center gap-1 p-1 bg-secondary/30 rounded-full border border-border/50 backdrop-blur-sm ml-2">
           <LanguageSwitcher />
           <div className="w-px h-4 bg-border mx-1" />
           {/* 主题切换按钮 */}
@@ -111,10 +116,18 @@ export const Header: React.FC<HeaderProps> = ({ isLoading = false }) => {
             <Settings className="w-4 h-4" />
           </button>
         </div>
+
+        {/* 用户菜单 */}
+        <div className="ml-2">
+          <UserMenu />
+        </div>
       </div>
 
       {/* 移动端：统一图标容器 */}
       <div className="flex md:hidden items-center gap-1">
+        {/* 使用次数指示器 */}
+        <UsageIndicator />
+
         {/* 语言切换 (简化版样式，使其与其他图标一致) */}
         <div className="flex items-center justify-center w-9 h-9">
           <LanguageSwitcher />
@@ -152,6 +165,9 @@ export const Header: React.FC<HeaderProps> = ({ isLoading = false }) => {
         >
           <Settings className="w-5 h-5" />
         </button>
+
+        {/* 用户菜单 */}
+        <UserMenu />
 
         {/* 菜单按钮 */}
         <button

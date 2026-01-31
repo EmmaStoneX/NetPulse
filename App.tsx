@@ -6,8 +6,11 @@ import { ResultView } from './components/ResultView';
 import { ShareButton } from './components/ShareButton';
 import { ShareModal } from './components/ShareModal';
 import { SharedView } from './components/SharedView';
+import { LoginPrompt } from './components/LoginPrompt';
 import { analyzeEvent } from './services/geminiService';
 import { AnalysisResult, LoadingState, AnalysisMode } from './types';
+import { useAuth } from './contexts/AuthContext';
+import { useUsageLimit } from './contexts/UsageLimitContext';
 import {
   isShareUrl,
   getShareDataFromCurrentUrl,
@@ -24,6 +27,8 @@ type PageView = 'home' | 'shared' | 'shared-error';
 
 const App: React.FC = () => {
   const { t } = useTranslation();
+  const { auth } = useAuth();
+  const { usage, decrementUsage } = useUsageLimit();
   const [status, setStatus] = useState<LoadingState>(LoadingState.IDLE);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [errorMsg, setErrorMsg] = useState<string>('');
@@ -33,6 +38,7 @@ const App: React.FC = () => {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [sharedData, setSharedData] = useState<SharedAnalysisData | null>(null);
   const [isLoadingShare, setIsLoadingShare] = useState(false);
+  const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
 
   // Handle URL hash changes for share links
   useEffect(() => {
@@ -83,6 +89,12 @@ const App: React.FC = () => {
   const analysisStartTime = useRef<number>(0);
 
   const handleSearch = async (query: string, mode: AnalysisMode) => {
+    // Check usage limit for non-authenticated users
+    if (!auth.isAuthenticated && usage.isLimited) {
+      setIsLoginPromptOpen(true);
+      return;
+    }
+
     setStatus(LoadingState.SEARCHING);
     setErrorMsg('');
     setResult(null);
@@ -91,7 +103,13 @@ const App: React.FC = () => {
     analysisStartTime.current = Date.now();
 
     try {
-      const data = await analyzeEvent(query, mode);
+      const data = await analyzeEvent(query, mode, auth.token);
+      
+      // Decrement usage for non-authenticated users
+      if (!auth.isAuthenticated) {
+        decrementUsage();
+      }
+      
       setResult(data);
       setStatus(LoadingState.COMPLETE);
       // 追踪分析成功
@@ -107,7 +125,13 @@ const App: React.FC = () => {
       let errorKey = 'error.message'; // 默认错误消息
       let errorType: ErrorType = 'unknown';
       
-      if (errorMessage.includes('429') || errorMessage.toLowerCase().includes('rate limit')) {
+      // Handle 429 usage limit exceeded error
+      if (errorMessage.includes('429') || errorMessage.toLowerCase().includes('limit exceeded') || errorMessage.toLowerCase().includes('usage limit')) {
+        if (!auth.isAuthenticated) {
+          setIsLoginPromptOpen(true);
+          setStatus(LoadingState.IDLE);
+          return;
+        }
         errorKey = 'error.rateLimit';
         errorType = 'rate_limit';
       } else if (errorMessage.includes('503') || errorMessage.includes('502') || errorMessage.toLowerCase().includes('overload')) {
@@ -349,6 +373,12 @@ const App: React.FC = () => {
       </main>
 
       <Footer className="shrink-0" />
+
+      {/* Login Prompt Modal */}
+      <LoginPrompt
+        isOpen={isLoginPromptOpen}
+        onClose={() => setIsLoginPromptOpen(false)}
+      />
     </div>
   );
 };

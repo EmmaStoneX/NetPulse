@@ -144,6 +144,15 @@
     "warningConfirm": "I understand, continue",
     "warningCancel": "Keep it off"
   },
+  "auth": {
+    "loginWithGitHub": "Login with GitHub",
+    "loggedIn": "Logged in",
+    "logout": "Logout",
+    "limitReachedTitle": "Daily Limit Reached",
+    "limitReachedDesc": "You've used all 5 free analyses for today. Login with GitHub to unlock unlimited access.",
+    "loginBenefit": "Logged in users enjoy unlimited analyses",
+    "usageTooltip": "{{remaining}} of {{total}} free analyses remaining today"
+  },
   "terms": {
     "title": "Terms of Service",
     "lastUpdated": "Last Updated: January 7, 2026",

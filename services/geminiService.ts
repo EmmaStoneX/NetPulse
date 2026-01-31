@@ -40,7 +40,7 @@ const getCurrentLang = (): 'zh' | 'en' => {
   return lang?.startsWith('zh') ? 'zh' : 'en';
 };
 
-export const analyzeEvent = async (query: string, mode: AnalysisMode): Promise<AnalysisResult> => {
+export const analyzeEvent = async (query: string, mode: AnalysisMode, authToken?: string | null): Promise<AnalysisResult> => {
   try {
     // Check if user has custom API configuration enabled
     if (apiConfigStore.hasCustomConfig()) {
@@ -51,9 +51,14 @@ export const analyzeEvent = async (query: string, mode: AnalysisMode): Promise<A
     // Use default backend proxy mode
     const lang = getCurrentLang();
     
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (authToken) {
+      headers["Authorization"] = `Bearer ${authToken}`;
+    }
+    
     const response = await fetch("/api/analyze", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({ query, mode, lang }),
     });
 

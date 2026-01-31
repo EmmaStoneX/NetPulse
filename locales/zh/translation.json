@@ -144,6 +144,15 @@
     "warningConfirm": "我已了解，继续",
     "warningCancel": "保持关闭"
   },
+  "auth": {
+    "loginWithGitHub": "使用 GitHub 登录",
+    "loggedIn": "已登录",
+    "logout": "退出登录",
+    "limitReachedTitle": "已达今日使用限制",
+    "limitReachedDesc": "您今天的 5 次免费分析已用完。登录 GitHub 即可无限制使用。",
+    "loginBenefit": "登录用户可无限次使用分析功能",
+    "usageTooltip": "今日剩余 {{remaining}}/{{total}} 次免费分析"
+  },
   "terms": {
     "title": "使用条款",
     "lastUpdated": "最后更新日期：2026年1月7日",

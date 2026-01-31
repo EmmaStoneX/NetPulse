@@ -237,7 +237,21 @@ export default {
       return handleExaProxy(request, env);
     }
 
-    // 7. 静态页面路由重写 (无扩展名 -> .html)
+    // 7. 认证相关路由
+    if (url.pathname === "/api/auth/github" && request.method === "GET") {
+      return handleAuthGitHub(request, env);
+    }
+    if (url.pathname === "/api/auth/callback" && request.method === "GET") {
+      return handleAuthCallback(request, env);
+    }
+    if (url.pathname === "/api/auth/user" && request.method === "GET") {
+      return handleAuthUser(request, env);
+    }
+    if (url.pathname === "/api/usage" && request.method === "GET") {
+      return handleUsage(request, env);
+    }
+
+    // 8. 静态页面路由重写 (无扩展名 -> .html)
     const staticPages = ['/about', '/privacy', '/terms'];
     if (staticPages.includes(url.pathname)) {
       const newUrl = new URL(request.url);
@@ -245,7 +259,7 @@ export default {
       return env.ASSETS.fetch(new Request(newUrl, request));
     }
 
-    // 8. 静态资源（默认）
+    // 9. 静态资源（默认）
     try {
       const response = await env.ASSETS.fetch(request);
       if (response.status === 404 && url.pathname.endsWith("favicon.ico")) {
@@ -316,6 +330,45 @@ async function handleExaProxy(request, env) {
 async function handleAnalyze(request, env, ctx) {
   let reqBody = null;
   try {
+    // === 使用限制检查 ===
+    const authHeader = request.headers.get('Authorization');
+    const token = authHeader?.replace('Bearer ', '');
+    let isAuthenticated = false;
+    
+    // 检查是否是登录用户
+    if (token) {
+      const userData = await env.AUTH_TOKENS.get(`token:${token}`, 'json');
+      if (userData && userData.expires_at > Date.now()) {
+        isAuthenticated = true;
+      }
+    }
+    
+    // 访客用户检查使用限制
+    if (!isAuthenticated) {
+      const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+      const date = new Date().toISOString().split('T')[0];
+      const key = `ip:${ip}:${date}`;
+      
+      const usage = await env.USAGE_LIMIT.get(key, 'json') || { count: 0 };
+      
+      if (usage.count >= 5) {
+        return new Response(JSON.stringify({
+          error: 'Usage limit exceeded. Please login with GitHub for unlimited access.',
+          code: 'LIMIT_EXCEEDED',
+          remaining: 0
+        }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+      
+      // 增加使用次数
+      await env.USAGE_LIMIT.put(key, JSON.stringify({ count: usage.count + 1 }), {
+        expirationTtl: 86400
+      });
+    }
+    // === 使用限制检查结束 ===
+
     const geminiKey = env.VITE_GEMINI_API_KEY || env.GEMINI_API_KEY;
     const tavilyKey = getNextTavilyKey(env);
 
@@ -677,4 +730,220 @@ function generateShortId() {
     result += chars[randomValues[i] % chars.length];
   }
   return result;
+}
+
+// ============================================
+// GitHub OAuth 配置
+// ============================================
+const GITHUB_CLIENT_ID = 'Ov23libyQSlyiV3tUwMk';
+const GITHUB_REDIRECT_URI = 'https://netpulse.zxvmax.com/api/auth/callback';
+const GITHUB_SCOPE = 'read:user';
+
+// ============================================
+// 生成安全随机 Token
+// ============================================
+function generateToken() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  const randomValues = new Uint8Array(32);
+  crypto.getRandomValues(randomValues);
+  for (let i = 0; i < 32; i++) {
+    result += chars[randomValues[i] % chars.length];
+  }
+  return result;
+}
+
+// ============================================
+// 认证: 重定向到 GitHub OAuth
+// ============================================
+async function handleAuthGitHub(request, env) {
+  const state = generateToken();
+  
+  // 存储 state 用于验证回调 (5分钟过期)
+  await env.AUTH_TOKENS.put(`state:${state}`, 'valid', { expirationTtl: 300 });
+  
+  const authUrl = new URL('https://github.com/login/oauth/authorize');
+  authUrl.searchParams.set('client_id', GITHUB_CLIENT_ID);
+  authUrl.searchParams.set('redirect_uri', GITHUB_REDIRECT_URI);
+  authUrl.searchParams.set('scope', GITHUB_SCOPE);
+  authUrl.searchParams.set('state', state);
+  
+  return Response.redirect(authUrl.toString(), 302);
+}
+
+// ============================================
+// 认证: GitHub OAuth 回调处理
+// ============================================
+async function handleAuthCallback(request, env) {
+  const url = new URL(request.url);
+  const code = url.searchParams.get('code');
+  const state = url.searchParams.get('state');
+  const error = url.searchParams.get('error');
+  
+  // 处理用户拒绝授权
+  if (error) {
+    return Response.redirect('/#/auth?error=access_denied', 302);
+  }
+  
+  if (!code || !state) {
+    return Response.redirect('/#/auth?error=invalid_request', 302);
+  }
+  
+  // 验证 state
+  const storedState = await env.AUTH_TOKENS.get(`state:${state}`);
+  if (!storedState) {
+    return Response.redirect('/#/auth?error=invalid_state', 302);
+  }
+  
+  // 删除已使用的 state
+  await env.AUTH_TOKENS.delete(`state:${state}`);
+  
+  try {
+    // 用 code 换取 access_token
+    const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        client_id: GITHUB_CLIENT_ID,
+        client_secret: env.GITHUB_CLIENT_SECRET,
+        code: code
+      })
+    });
+    
+    const tokenData = await tokenResponse.json();
+    
+    if (tokenData.error) {
+      console.error('[Auth] Token exchange failed:', tokenData.error);
+      return Response.redirect('/#/auth?error=token_exchange_failed', 302);
+    }
+    
+    const accessToken = tokenData.access_token;
+    
+    // 获取 GitHub 用户信息
+    const userResponse = await fetch('https://api.github.com/user', {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'User-Agent': 'NetPulse'
+      }
+    });
+    
+    if (!userResponse.ok) {
+      console.error('[Auth] Failed to get user info');
+      return Response.redirect('/#/auth?error=user_fetch_failed', 302);
+    }
+    
+    const userData = await userResponse.json();
+    
+    // 生成内部 token
+    const internalToken = generateToken();
+    const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24小时
+    
+    // 存储 token 信息到 KV
+    await env.AUTH_TOKENS.put(`token:${internalToken}`, JSON.stringify({
+      github_id: userData.id,
+      login: userData.login,
+      avatar_url: userData.avatar_url,
+      created_at: Date.now(),
+      expires_at: expiresAt
+    }), { expirationTtl: 86400 }); // 24小时过期
+    
+    // 重定向到前端，带上 token
+    return Response.redirect(`/#/auth?token=${internalToken}`, 302);
+    
+  } catch (error) {
+    console.error('[Auth] Callback error:', error);
+    return Response.redirect('/#/auth?error=server_error', 302);
+  }
+}
+
+// ============================================
+// 认证: 获取当前用户信息
+// ============================================
+async function handleAuthUser(request, env) {
+  const authHeader = request.headers.get('Authorization');
+  const token = authHeader?.replace('Bearer ', '');
+  
+  if (!token) {
+    return new Response(JSON.stringify({ error: 'No token provided' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+  
+  const userData = await env.AUTH_TOKENS.get(`token:${token}`, 'json');
+  
+  if (!userData) {
+    return new Response(JSON.stringify({ error: 'Invalid token' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+  
+  if (userData.expires_at < Date.now()) {
+    await env.AUTH_TOKENS.delete(`token:${token}`);
+    return new Response(JSON.stringify({ error: 'Token expired' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+  
+  return new Response(JSON.stringify({
+    user: {
+      id: userData.github_id,
+      login: userData.login,
+      avatar_url: userData.avatar_url
+    },
+    expires_at: userData.expires_at
+  }), {
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+  });
+}
+
+// ============================================
+// 使用量: 获取当前 IP 的使用情况
+// ============================================
+async function handleUsage(request, env) {
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  const date = new Date().toISOString().split('T')[0];
+  const key = `ip:${ip}:${date}`;
+  
+  // 检查是否是登录用户
+  const authHeader = request.headers.get('Authorization');
+  const token = authHeader?.replace('Bearer ', '');
+  
+  if (token) {
+    const userData = await env.AUTH_TOKENS.get(`token:${token}`, 'json');
+    if (userData && userData.expires_at > Date.now()) {
+      // 登录用户无限制
+      return new Response(JSON.stringify({
+        remaining: -1, // -1 表示无限制
+        total: -1,
+        isAuthenticated: true,
+        resetTime: null
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+  }
+  
+  // 访客用户
+  const usage = await env.USAGE_LIMIT.get(key, 'json') || { count: 0 };
+  const remaining = Math.max(0, 5 - usage.count);
+  
+  // 计算重置时间 (明天 0 点)
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+  
+  return new Response(JSON.stringify({
+    remaining: remaining,
+    total: 5,
+    isAuthenticated: false,
+    resetTime: tomorrow.toISOString()
+  }), {
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+  });
 }

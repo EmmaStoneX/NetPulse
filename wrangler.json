@@ -13,6 +13,14 @@
     {
       "binding": "SHARE_DATA",
       "id": "e21ed8975db84d74ae84c74d104ae6d4"
+    },
+    {
+      "binding": "USAGE_LIMIT",
+      "id": "REPLACE_WITH_USAGE_LIMIT_KV_ID"
+    },
+    {
+      "binding": "AUTH_TOKENS",
+      "id": "REPLACE_WITH_AUTH_TOKENS_KV_ID"
     }
   ]
 }

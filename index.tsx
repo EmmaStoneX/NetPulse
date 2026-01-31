@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import { AuthProvider, UsageLimitProvider } from './contexts';
 import './i18n'; // 导入 i18n 配置
 import './src/index.css'; // 导入 Tailwind CSS
 
@@ -12,6 +13,10 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <App />
+    <AuthProvider>
+      <UsageLimitProvider>
+        <App />
+      </UsageLimitProvider>
+    </AuthProvider>
   </React.StrictMode>
 );
