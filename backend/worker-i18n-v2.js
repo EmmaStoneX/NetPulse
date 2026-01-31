@@ -365,15 +365,29 @@ async function handleAnalyze(request, env, ctx) {
       }
     }
     
-    // 访客用户检查使用限制
+    // 访客用户检查使用限制（基于 IP + 指纹）
     if (!isAuthenticated) {
       const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+      const fingerprint = generateRequestFingerprint(request);
       const date = new Date().toISOString().split('T')[0];
-      const key = `ip:${ip}:${date}`;
       
-      const usage = await env.USAGE_LIMIT.get(key, 'json') || { count: 0 };
+      // 使用 IP + 指纹组合作为限流 key
+      const ipKey = `ip:${ip}:${date}`;
+      const fpKey = `fp:${fingerprint}:${date}`;
       
-      if (usage.count >= 5) {
+      // 获取两种限制的使用情况
+      const [ipUsage, fpUsage] = await Promise.all([
+        env.USAGE_LIMIT.get(ipKey, 'json'),
+        env.USAGE_LIMIT.get(fpKey, 'json')
+      ]);
+      
+      const ipCount = ipUsage?.count || 0;
+      const fpCount = fpUsage?.count || 0;
+      
+      // 取两者中较大的值作为实际使用次数（防止绕过）
+      const actualCount = Math.max(ipCount, fpCount);
+      
+      if (actualCount >= 5) {
         return new Response(JSON.stringify({
           error: 'Usage limit exceeded. Please login with GitHub for unlimited access.',
           code: 'LIMIT_EXCEEDED',
@@ -384,10 +398,12 @@ async function handleAnalyze(request, env, ctx) {
         });
       }
       
-      // 增加使用次数
-      await env.USAGE_LIMIT.put(key, JSON.stringify({ count: usage.count + 1 }), {
-        expirationTtl: 86400
-      });
+      // 同时增加 IP 和指纹的使用次数
+      const newCount = actualCount + 1;
+      await Promise.all([
+        env.USAGE_LIMIT.put(ipKey, JSON.stringify({ count: newCount }), { expirationTtl: 86400 }),
+        env.USAGE_LIMIT.put(fpKey, JSON.stringify({ count: newCount }), { expirationTtl: 86400 })
+      ]);
     }
     // === 使用限制检查结束 ===
 
@@ -762,6 +778,39 @@ const GITHUB_REDIRECT_URI = 'https://netpulse.zxvmax.com/api/auth/callback';
 const GITHUB_SCOPE = 'read:user';
 
 // ============================================
+// 生成请求指纹（用于速率限制）
+// 基于多个请求特征生成，即使更换 IP 也能识别同一用户
+// ============================================
+function generateRequestFingerprint(request) {
+  const components = [
+    // User-Agent（浏览器和操作系统信息）
+    request.headers.get('User-Agent') || '',
+    // Accept-Language（语言偏好）
+    request.headers.get('Accept-Language') || '',
+    // Accept-Encoding（支持的编码）
+    request.headers.get('Accept-Encoding') || '',
+    // Sec-CH-UA（浏览器品牌信息）
+    request.headers.get('Sec-CH-UA') || '',
+    // Sec-CH-UA-Platform（操作系统）
+    request.headers.get('Sec-CH-UA-Platform') || '',
+    // Sec-CH-UA-Mobile（是否移动设备）
+    request.headers.get('Sec-CH-UA-Mobile') || '',
+  ];
+  
+  // 将所有组件连接并生成简单哈希
+  const combined = components.join('|');
+  let hash = 0;
+  for (let i = 0; i < combined.length; i++) {
+    const char = combined.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  
+  // 转换为正数的十六进制字符串
+  return Math.abs(hash).toString(16);
+}
+
+// ============================================
 // 生成安全随机 Token
 // ============================================
 function generateToken() {
@@ -971,8 +1020,10 @@ async function handleAuthUser(request, env) {
 async function handleUsage(request, env) {
   try {
     const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+    const fingerprint = generateRequestFingerprint(request);
     const date = new Date().toISOString().split('T')[0];
-    const key = `ip:${ip}:${date}`;
+    const ipKey = `ip:${ip}:${date}`;
+    const fpKey = `fp:${fingerprint}:${date}`;
     
     // 检查是否是登录用户
     const authHeader = request.headers.get('Authorization');
@@ -1006,8 +1057,16 @@ async function handleUsage(request, env) {
       });
     }
     
-    const usage = await env.USAGE_LIMIT.get(key, 'json') || { count: 0 };
-    const remaining = Math.max(0, 5 - usage.count);
+    // 获取 IP 和指纹的使用情况，取较大值
+    const [ipUsage, fpUsage] = await Promise.all([
+      env.USAGE_LIMIT.get(ipKey, 'json'),
+      env.USAGE_LIMIT.get(fpKey, 'json')
+    ]);
+    
+    const ipCount = ipUsage?.count || 0;
+    const fpCount = fpUsage?.count || 0;
+    const actualCount = Math.max(ipCount, fpCount);
+    const remaining = Math.max(0, 5 - actualCount);
     
     // 计算重置时间 (明天 0 点)
     const tomorrow = new Date();
