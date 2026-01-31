@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Github, X, Lock } from 'lucide-react';
+import { LogIn, X, Lock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { cn } from '../utils/cn';
 
@@ -73,7 +73,7 @@ export const LoginPrompt: React.FC<LoginPromptProps> = ({ isOpen, onClose }) => 
             "font-medium hover:opacity-90 transition-opacity"
           )}
         >
-          <Github className="w-5 h-5" />
+          <LogIn className="w-5 h-5" />
           {t('auth.loginWithGitHub')}
         </button>
 

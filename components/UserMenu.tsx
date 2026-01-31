@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Github, LogOut, ChevronDown, User } from 'lucide-react';
+import { LogIn, LogOut, ChevronDown, User } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { cn } from '../utils/cn';
 
@@ -40,7 +40,7 @@ export const UserMenu: React.FC = () => {
     );
   }
 
-  // Not authenticated - show login button
+  // Not authenticated - show login button with LogIn icon
   if (!auth.isAuthenticated) {
     return (
       <button
@@ -50,8 +50,9 @@ export const UserMenu: React.FC = () => {
           "bg-secondary/50 hover:bg-secondary/80 border border-border/50",
           "text-sm font-medium text-foreground transition-colors"
         )}
+        title={t('auth.loginWithGitHub')}
       >
-        <Github className="w-4 h-4" />
+        <LogIn className="w-4 h-4" />
         <span className="hidden sm:inline">{t('auth.loginWithGitHub')}</span>
       </button>
     );
