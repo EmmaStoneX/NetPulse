@@ -1,26 +1,25 @@
-
 {
-  "name": "netpulse",
-  "compatibility_date": "2025-12-02",
-  "main": "backend/worker-i18n-v2.js",
-  "assets": {
-    "directory": "./dist"
-  },
-  "observability": {
-    "enabled": true
-  },
-  "kv_namespaces": [
-    {
-      "binding": "SHARE_DATA",
-      "id": "e21ed8975db84d74ae84c74d104ae6d4"
-    },
-    {
-      "binding": "USAGE_LIMIT",
-      "id": "REPLACE_WITH_USAGE_LIMIT_KV_ID"
-    },
-    {
-      "binding": "AUTH_TOKENS",
-      "id": "REPLACE_WITH_AUTH_TOKENS_KV_ID"
-    }
-  ]
+	"name": "netpulse",
+	"compatibility_date": "2025-12-02",
+	"main": "backend/worker-i18n-v2.js",
+	"assets": {
+		"directory": "./dist"
+	},
+	"observability": {
+		"enabled": true
+	},
+	"kv_namespaces": [
+		{
+			"binding": "SHARE_DATA",
+			"id": "e21ed8975db84d74ae84c74d104ae6d4"
+		},
+		{
+			"binding": "USAGE_LIMIT",
+			"id": "4035d9c930de426f9d7ede1e0d3c49da"
+		},
+		{
+			"binding": "AUTH_TOKENS",
+			"id": "85dd551ec4ed406fb11db9300f684385"
+		}
+	]
 }
