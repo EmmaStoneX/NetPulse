@@ -65,6 +65,10 @@ const App: React.FC = () => {
           }
         }
       } else if (window.location.hash === '' || window.location.hash === '#/') {
+        // 清理 URL 中的空 hash
+        if (window.location.href.includes('#')) {
+          history.replaceState(null, '', window.location.pathname + window.location.search);
+        }
         if (currentPage === 'shared' || currentPage === 'shared-error') {
           setCurrentPage('home');
           setSharedData(null);
@@ -78,7 +82,8 @@ const App: React.FC = () => {
   }, [currentPage]);
 
   const navigateToHome = () => {
-    window.location.hash = '';
+    // 使用 replaceState 彻底清除 hash，避免 URL 末尾留下 #
+    history.replaceState(null, '', window.location.pathname + window.location.search);
     setCurrentPage('home');
     setSharedData(null);
     setStatus(LoadingState.IDLE);
