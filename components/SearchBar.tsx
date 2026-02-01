@@ -11,22 +11,7 @@ interface SearchBarProps {
   isLoading: boolean;
 }
 
-// 默认热门话题（根据语言）
-const DEFAULT_TOPICS_ZH = [
-  "最近的互联网大瘫痪",
-  "最新 AI 模型发布的影响",
-  "本周网络安全漏洞",
-  "社交媒体新规"
-];
-
-const DEFAULT_TOPICS_EN = [
-  "Recent Internet Outages",
-  "Latest AI Model Releases",
-  "This Week's Cybersecurity Vulnerabilities",
-  "New Social Media Regulations"
-];
-
-// 热门话题缓存 key
+// 热门话题缓存 key（默认话题由后端统一管理）
 const TRENDING_CACHE_KEY = 'netpulse_trending_topics';
 const TRENDING_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 小时缓存
 const TRENDING_LAST_SUCCESS_KEY = 'netpulse_trending_last_success'; // 最后一次成功加载的话题
@@ -146,12 +131,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
     return () => clearTimeout(timer);
   }, [hasTypewriterTexts, isFocused, input, i18n.language]); // Re-run when language changes
 
-  // 获取当前语言的默认话题
-  const getDefaultTopics = useCallback((lang: string) => {
-    return lang.startsWith('zh') ? DEFAULT_TOPICS_ZH : DEFAULT_TOPICS_EN;
-  }, []);
-
   // 获取热门话题（带请求取消和本地缓存）
+  // 默认话题由后端统一管理，前端不再维护
   const fetchTrendingTopics = useCallback(async (lang: string, signal?: AbortSignal) => {
     const langCode = lang.startsWith('zh') ? 'zh' : 'en';
     
@@ -169,12 +150,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
     if (lastSuccessTopics) {
       console.log(`[SearchBar] Using last success topics for lang=${langCode}`);
       setTrendingTopics(lastSuccessTopics);
-    } else {
-      // 3. 没有任何缓存，使用默认话题
-      setTrendingTopics(getDefaultTopics(lang));
     }
     
-    // 4. 后台请求新话题
+    // 3. 请求后端获取话题（后端会返回默认话题作为 fallback）
     setIsLoadingTopics(true);
 
     try {
@@ -199,13 +177,13 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
         return;
       }
       console.error('[SearchBar] Failed to fetch trending topics:', error);
-      // 请求失败时保持当前显示的话题（lastSuccess 或 default）
+      // 请求失败时保持当前显示的话题（lastSuccess）
     } finally {
       if (!signal?.aborted) {
         setIsLoadingTopics(false);
       }
     }
-  }, [getDefaultTopics]);
+  }, []);
 
   // 监听语言变化（使用 AbortController 取消旧请求）
   useEffect(() => {

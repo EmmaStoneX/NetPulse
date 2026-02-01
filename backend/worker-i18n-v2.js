@@ -101,10 +101,20 @@ Extract 4 trending topic titles. Requirements:
   }
 };
 
-// 默认热门话题（按语言）
+// 默认热门话题（按语言）- 统一管理，前端不再维护
 const DEFAULT_TOPICS = {
-  zh: ["最新科技趋势", "AI模型更新", "网络安全", "全球互联网"],
-  en: ["Latest Tech Trends", "AI Model Updates", "Cybersecurity", "Global Internet"]
+  zh: [
+    "最近的互联网大瘫痪",
+    "最新 AI 模型发布的影响",
+    "本周网络安全漏洞",
+    "社交媒体新规"
+  ],
+  en: [
+    "Recent Internet Outages",
+    "Latest AI Model Releases",
+    "This Week's Cybersecurity Vulnerabilities",
+    "New Social Media Regulations"
+  ]
 };
 
 // ============================================
