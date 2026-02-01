@@ -28,7 +28,8 @@ const DEFAULT_TOPICS_EN = [
 
 // 热门话题缓存 key
 const TRENDING_CACHE_KEY = 'netpulse_trending_topics';
-const TRENDING_CACHE_TTL = 30 * 60 * 1000; // 30 分钟缓存
+const TRENDING_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 小时缓存
+const TRENDING_LAST_SUCCESS_KEY = 'netpulse_trending_last_success'; // 最后一次成功加载的话题
 
 // 从 localStorage 获取缓存的话题
 const getCachedTopics = (lang: string): string[] | null => {
@@ -49,12 +50,35 @@ const getCachedTopics = (lang: string): string[] | null => {
   }
 };
 
+// 获取最后一次成功加载的话题（作为 fallback）
+const getLastSuccessTopics = (lang: string): string[] | null => {
+  try {
+    const cached = localStorage.getItem(TRENDING_LAST_SUCCESS_KEY);
+    if (!cached) return null;
+    
+    const { topics, language } = JSON.parse(cached);
+    // 只检查语言匹配，不检查过期（作为 fallback 永久有效）
+    if (language === lang && topics?.length > 0) {
+      return topics;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+};
+
 // 缓存话题到 localStorage
 const setCachedTopics = (topics: string[], lang: string) => {
   try {
-    localStorage.setItem(TRENDING_CACHE_KEY, JSON.stringify({
+    const data = JSON.stringify({
       topics,
       timestamp: Date.now(),
+      language: lang
+    });
+    localStorage.setItem(TRENDING_CACHE_KEY, data);
+    // 同时保存为最后一次成功加载的话题
+    localStorage.setItem(TRENDING_LAST_SUCCESS_KEY, JSON.stringify({
+      topics,
       language: lang
     }));
   } catch {
@@ -131,7 +155,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
   const fetchTrendingTopics = useCallback(async (lang: string, signal?: AbortSignal) => {
     const langCode = lang.startsWith('zh') ? 'zh' : 'en';
     
-    // 1. 先尝试从缓存获取
+    // 1. 先尝试从缓存获取（24小时有效）
     const cachedTopics = getCachedTopics(langCode);
     if (cachedTopics) {
       console.log(`[SearchBar] Using cached topics for lang=${langCode}`);
@@ -140,9 +164,18 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
       return;
     }
     
-    // 2. 没有缓存，显示默认话题并开始加载
+    // 2. 缓存过期，尝试获取最后一次成功加载的话题作为初始显示
+    const lastSuccessTopics = getLastSuccessTopics(langCode);
+    if (lastSuccessTopics) {
+      console.log(`[SearchBar] Using last success topics for lang=${langCode}`);
+      setTrendingTopics(lastSuccessTopics);
+    } else {
+      // 3. 没有任何缓存，使用默认话题
+      setTrendingTopics(getDefaultTopics(lang));
+    }
+    
+    // 4. 后台请求新话题
     setIsLoadingTopics(true);
-    setTrendingTopics(getDefaultTopics(lang));
 
     try {
       console.log(`[SearchBar] Fetching trending topics for lang=${langCode}`);
@@ -157,7 +190,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
       if (topics && topics.length > 0) {
         console.log(`[SearchBar] Got ${topics.length} topics:`, topics);
         setTrendingTopics(topics);
-        // 缓存到 localStorage
+        // 缓存到 localStorage（同时更新 lastSuccess）
         setCachedTopics(topics, langCode);
       }
     } catch (error) {
@@ -166,6 +199,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
         return;
       }
       console.error('[SearchBar] Failed to fetch trending topics:', error);
+      // 请求失败时保持当前显示的话题（lastSuccess 或 default）
     } finally {
       if (!signal?.aborted) {
         setIsLoadingTopics(false);
