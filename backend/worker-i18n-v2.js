@@ -1117,12 +1117,14 @@ const HN_CACHE_TTL = 3600 * 1000; // 1 小时缓存
 
 async function handleHackerNewsTrending(request, env) {
   const corsHdrs = getCorsHeaders(request);
+  const url = new URL(request.url);
+  const forceRefresh = url.searchParams.get('force') === 'true';
   
   try {
     const cacheKey = 'trending:hn:tech';
     
-    // 1. 检查 KV 缓存
-    if (env.TRENDING_CACHE) {
+    // 1. 检查 KV 缓存（除非强制刷新）
+    if (!forceRefresh && env.TRENDING_CACHE) {
       const cached = await env.TRENDING_CACHE.get(cacheKey, 'json');
       if (cached && cached.expiresAt > Date.now()) {
         console.log('[HN Trending] Returning cached data');
@@ -1145,7 +1147,7 @@ async function handleHackerNewsTrending(request, env) {
       }
     }
     
-    console.log('[HN Trending] Fetching fresh data from Hacker News');
+    console.log(`[HN Trending] Fetching fresh data from Hacker News (force=${forceRefresh})`);
     
     // 2. 获取 Hacker News Top Stories
     const topStoriesRes = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json');

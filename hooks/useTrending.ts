@@ -62,15 +62,19 @@ export function useTrending() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchTrending = useCallback(async (signal?: AbortSignal) => {
-    // 先尝试本地缓存
-    const localCached = getLocalCache();
-    if (localCached) {
-      setCategories(localCached);
-      setIsLoading(false);
+  const fetchTrending = useCallback(async (signal?: AbortSignal, skipCache = false) => {
+    // 先尝试本地缓存（除非强制刷新）
+    if (!skipCache) {
+      const localCached = getLocalCache();
+      if (localCached) {
+        setCategories(localCached);
+        setIsLoading(false);
+        return; // 有缓存就不请求了
+      }
     }
 
     try {
+      setIsLoading(true);
       const response = await fetch('/api/trending/hn', { signal });
       
       if (signal?.aborted) return;
@@ -93,11 +97,6 @@ export function useTrending() {
       
       console.error('[useTrending] Error:', err);
       setError((err as Error).message);
-      
-      // 如果没有本地缓存，保持空数组
-      if (!localCached) {
-        setCategories([]);
-      }
     } finally {
       if (!signal?.aborted) {
         setIsLoading(false);
@@ -107,16 +106,36 @@ export function useTrending() {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetchTrending(controller.signal);
+    fetchTrending(controller.signal, false);
     
     return () => controller.abort();
   }, [fetchTrending]);
 
   const refresh = useCallback(() => {
-    setIsLoading(true);
+    // 清除本地缓存并强制刷新（带 force 参数让后端也跳过缓存）
+    localStorage.removeItem(LOCAL_CACHE_KEY);
     setError(null);
-    fetchTrending();
-  }, [fetchTrending]);
+    // 传 force=true 让后端跳过 KV 缓存
+    const fetchWithForce = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/trending/hn?force=true');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data: TrendingResponse = await response.json();
+        if (data.success && data.data?.categories) {
+          setCategories(data.data.categories);
+          setLocalCache(data.data.categories);
+          setError(null);
+        }
+      } catch (err) {
+        console.error('[useTrending] Refresh error:', err);
+        setError((err as Error).message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchWithForce();
+  }, []);
 
   return { categories, isLoading, error, refresh };
 }
