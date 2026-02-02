@@ -51,6 +51,13 @@ export function trackModeSelected(mode: 'fast' | 'deep'): void {
 }
 
 /**
+ * 追踪 Hacker News 热搜话题点击
+ */
+export function trackHNTrendingClicked(topicId: number, title: string): void {
+    trackEvent('hn_trending_clicked', { topicId, title: title.substring(0, 50) });
+}
+
+/**
  * 追踪分析完成
  */
 export function trackAnalysisCompleted(data: {
@@ -101,13 +108,6 @@ export function trackLanguageSwitched(data: {
     to: string;
 }): void {
     trackEvent('language_switched', data);
-}
-
-/**
- * 追踪热门话题点击
- */
-export function trackTrendingTopicClicked(topicIndex: number): void {
-    trackEvent('trending_topic_clicked', { topicIndex });
 }
 
 /**

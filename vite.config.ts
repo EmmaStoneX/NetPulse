@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => {
         ],
         proxy: {
           '/api': {
-            target: 'https://netpulse.zxvmax.site',
+            target: 'https://netpulse.zxvmax.com',
             changeOrigin: true,
             secure: true,
           }

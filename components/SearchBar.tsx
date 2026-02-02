@@ -1,91 +1,36 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, TrendingUp, ArrowRight, Zap, BrainCircuit } from 'lucide-react';
+import { Search, ArrowRight, Zap, BrainCircuit } from 'lucide-react';
 import { AnalysisMode } from '../types';
-import { getTrendingTopics } from '../services/geminiService';
 import { cn } from '../utils/cn';
-import { trackSearchInitiated, trackModeSelected, trackTrendingTopicClicked } from '../utils/analytics';
+import { trackSearchInitiated, trackModeSelected, trackHNTrendingClicked } from '../utils/analytics';
+import { TrendingSection } from './TrendingSection';
+import { TrendingTopic } from '../hooks/useTrending';
 
 interface SearchBarProps {
   onSearch: (query: string, mode: AnalysisMode) => void;
   isLoading: boolean;
 }
 
-// 热门话题缓存 key（默认话题由后端统一管理）
-const TRENDING_CACHE_KEY = 'netpulse_trending_topics';
-const TRENDING_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 小时缓存
-const TRENDING_LAST_SUCCESS_KEY = 'netpulse_trending_last_success'; // 最后一次成功加载的话题
-
-// 从 localStorage 获取缓存的话题
-const getCachedTopics = (lang: string): string[] | null => {
-  try {
-    const cached = localStorage.getItem(TRENDING_CACHE_KEY);
-    if (!cached) return null;
-    
-    const { topics, timestamp, language } = JSON.parse(cached);
-    const isExpired = Date.now() - timestamp > TRENDING_CACHE_TTL;
-    const isSameLang = language === lang;
-    
-    if (!isExpired && isSameLang && topics?.length > 0) {
-      return topics;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-};
-
-// 获取最后一次成功加载的话题（作为 fallback）
-const getLastSuccessTopics = (lang: string): string[] | null => {
-  try {
-    const cached = localStorage.getItem(TRENDING_LAST_SUCCESS_KEY);
-    if (!cached) return null;
-    
-    const { topics, language } = JSON.parse(cached);
-    // 只检查语言匹配，不检查过期（作为 fallback 永久有效）
-    if (language === lang && topics?.length > 0) {
-      return topics;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-};
-
-// 缓存话题到 localStorage
-const setCachedTopics = (topics: string[], lang: string) => {
-  try {
-    const data = JSON.stringify({
-      topics,
-      timestamp: Date.now(),
-      language: lang
-    });
-    localStorage.setItem(TRENDING_CACHE_KEY, data);
-    // 同时保存为最后一次成功加载的话题
-    localStorage.setItem(TRENDING_LAST_SUCCESS_KEY, JSON.stringify({
-      topics,
-      language: lang
-    }));
-  } catch {
-    // 忽略存储错误
-  }
-};
-
 export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
   const { t, i18n } = useTranslation();
   const [input, setInput] = useState('');
   const [mode, setMode] = useState<AnalysisMode>('deep');
-  const [trendingTopics, setTrendingTopics] = useState<string[]>([]);
-  const [isLoadingTopics, setIsLoadingTopics] = useState(false);
 
   // Typewriter effect state
   const [currentPlaceholder, setCurrentPlaceholder] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
 
-  // Get typewriter placeholders from translation
+  // Get typewriter placeholders from translation - use ref to avoid re-renders
   const typewriterTexts = t('searchBar.typewriterPlaceholders', { returnObjects: true }) as string[];
   const hasTypewriterTexts = Array.isArray(typewriterTexts) && typewriterTexts.length > 0;
+  const typewriterTextsRef = useRef<string[]>(typewriterTexts);
+  
+  // Update ref when language changes
+  useEffect(() => {
+    typewriterTextsRef.current = typewriterTexts;
+  }, [i18n.language]);
 
   useEffect(() => {
     if (!hasTypewriterTexts || isFocused || input) {
@@ -93,15 +38,16 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
       return;
     }
 
-    let currentIndex = 0;
     let currentText = '';
     let isDeleting = false;
     let loopNum = 0;
     let typingSpeed = 100;
+    let timer: ReturnType<typeof setTimeout>;
 
     const handleType = () => {
-      const i = loopNum % typewriterTexts.length;
-      const fullText = typewriterTexts[i];
+      const texts = typewriterTextsRef.current;
+      const i = loopNum % texts.length;
+      const fullText = texts[i];
 
       if (isDeleting) {
         currentText = fullText.substring(0, currentText.length - 1);
@@ -126,78 +72,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
       timer = setTimeout(handleType, typingSpeed);
     };
 
-    let timer = setTimeout(handleType, typingSpeed);
+    timer = setTimeout(handleType, typingSpeed);
 
     return () => clearTimeout(timer);
-  }, [hasTypewriterTexts, isFocused, input, i18n.language]); // Re-run when language changes
-
-  // 获取热门话题（带请求取消和本地缓存）
-  // 默认话题由后端统一管理，前端不再维护
-  const fetchTrendingTopics = useCallback(async (lang: string, signal?: AbortSignal) => {
-    const langCode = lang.startsWith('zh') ? 'zh' : 'en';
-    
-    // 1. 先尝试从缓存获取（24小时有效）
-    const cachedTopics = getCachedTopics(langCode);
-    if (cachedTopics) {
-      console.log(`[SearchBar] Using cached topics for lang=${langCode}`);
-      setTrendingTopics(cachedTopics);
-      setIsLoadingTopics(false);
-      return;
-    }
-    
-    // 2. 缓存过期，尝试获取最后一次成功加载的话题作为初始显示
-    const lastSuccessTopics = getLastSuccessTopics(langCode);
-    if (lastSuccessTopics) {
-      console.log(`[SearchBar] Using last success topics for lang=${langCode}`);
-      setTrendingTopics(lastSuccessTopics);
-    }
-    
-    // 3. 请求后端获取话题（后端会返回默认话题作为 fallback）
-    setIsLoadingTopics(true);
-
-    try {
-      console.log(`[SearchBar] Fetching trending topics for lang=${langCode}`);
-      const topics = await getTrendingTopics(langCode);
-
-      // 检查请求是否已被取消
-      if (signal?.aborted) {
-        console.log(`[SearchBar] Request for lang=${langCode} was aborted`);
-        return;
-      }
-
-      if (topics && topics.length > 0) {
-        console.log(`[SearchBar] Got ${topics.length} topics:`, topics);
-        setTrendingTopics(topics);
-        // 缓存到 localStorage（同时更新 lastSuccess）
-        setCachedTopics(topics, langCode);
-      }
-    } catch (error) {
-      if ((error as Error).name === 'AbortError') {
-        console.log(`[SearchBar] Request for lang=${langCode} was aborted`);
-        return;
-      }
-      console.error('[SearchBar] Failed to fetch trending topics:', error);
-      // 请求失败时保持当前显示的话题（lastSuccess）
-    } finally {
-      if (!signal?.aborted) {
-        setIsLoadingTopics(false);
-      }
-    }
-  }, []);
-
-  // 监听语言变化（使用 AbortController 取消旧请求）
-  useEffect(() => {
-    const currentLang = i18n.language || 'zh';
-    console.log(`[SearchBar] Language changed to: ${currentLang}`);
-
-    const abortController = new AbortController();
-    fetchTrendingTopics(currentLang, abortController.signal);
-
-    return () => {
-      // 组件卸载或语言再次变化时，取消之前的请求
-      abortController.abort();
-    };
-  }, [i18n.language, fetchTrendingTopics]);
+  }, [hasTypewriterTexts, isFocused, input, i18n.language]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -209,6 +87,18 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
       });
       onSearch(input, mode);
     }
+  };
+
+  // 处理 HN 热搜话题点击
+  const handleHNTopicClick = (topic: TrendingTopic) => {
+    trackSearchInitiated({
+      mode,
+      queryLength: topic.title.length,
+      source: 'trending',
+    });
+    trackHNTrendingClicked(topic.id, topic.title);
+    setInput(topic.title);
+    onSearch(topic.title, mode);
   };
 
   const isZh = i18n.language?.startsWith('zh');
@@ -304,34 +194,11 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
         </div>
       </form>
 
-      {/* 热门话题 */}
-      <div className="mt-6 flex flex-wrap justify-center gap-2 px-2 max-w-3xl mx-auto">
-        <span className="text-xs md:text-sm text-muted-foreground py-1">{t('searchBar.trendingTopics')}</span>
-        {trendingTopics.map((topic, idx) => (
-          <button
-            key={`${i18n.language}-${topic}-${idx}`}
-            onClick={() => {
-              trackSearchInitiated({
-                mode,
-                queryLength: topic.length,
-                source: 'trending',
-              });
-              trackTrendingTopicClicked(idx);
-              setInput(topic);
-              onSearch(topic, mode);
-            }}
-            disabled={isLoading || isLoadingTopics}
-            className={cn(
-              "text-xs md:text-sm px-2 md:px-3 py-1 rounded-full",
-              "bg-secondary/50 hover:bg-secondary border border-border",
-              "text-secondary-foreground transition-colors flex items-center gap-1 md:gap-1.5"
-            )}
-          >
-            <TrendingUp className="w-3 h-3 md:w-3.5 md:h-3.5 text-primary" />
-            <span className="truncate max-w-[120px] md:max-w-none">{topic}</span>
-          </button>
-        ))}
-      </div>
+      {/* Hacker News 实时热搜 */}
+      <TrendingSection
+        onTopicClick={handleHNTopicClick}
+        disabled={isLoading}
+      />
     </div>
   );
 };

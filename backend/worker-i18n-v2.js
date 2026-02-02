@@ -248,9 +248,14 @@ export default {
       return handleAnalyze(request, env, ctx);
     }
 
-    // 3. API 路由: GET /api/trending
+    // 3. API 路由: GET /api/trending (原有 Gemini 生成的热门话题)
     if (url.pathname === "/api/trending" && request.method === "GET") {
       return handleTrending(request, env);
+    }
+
+    // 3.1 API 路由: GET /api/trending/hn (Hacker News 实时热搜)
+    if (url.pathname === "/api/trending/hn" && request.method === "GET") {
+      return handleHackerNewsTrending(request, env);
     }
 
     // 4. API 路由: POST /api/share - 存储分享数据
@@ -1100,6 +1105,149 @@ async function handleUsage(request, env) {
       resetTime: null
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+
+// ============================================
+// Hacker News 实时热搜 API
+// ============================================
+const HN_CACHE_TTL = 3600 * 1000; // 1 小时缓存
+
+async function handleHackerNewsTrending(request, env) {
+  const corsHdrs = getCorsHeaders(request);
+  
+  try {
+    const cacheKey = 'trending:hn:tech';
+    
+    // 1. 检查 KV 缓存
+    if (env.TRENDING_CACHE) {
+      const cached = await env.TRENDING_CACHE.get(cacheKey, 'json');
+      if (cached && cached.expiresAt > Date.now()) {
+        console.log('[HN Trending] Returning cached data');
+        return new Response(JSON.stringify({
+          success: true,
+          data: {
+            categories: [{
+              id: 'tech',
+              name: 'AI科技',
+              nameEn: 'AI & Tech',
+              topics: cached.topics
+            }],
+            updatedAt: new Date(cached.fetchedAt).toISOString(),
+            cachedUntil: new Date(cached.expiresAt).toISOString()
+          },
+          fromCache: true
+        }), {
+          headers: { ...corsHdrs, 'Content-Type': 'application/json' }
+        });
+      }
+    }
+    
+    console.log('[HN Trending] Fetching fresh data from Hacker News');
+    
+    // 2. 获取 Hacker News Top Stories
+    const topStoriesRes = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json');
+    if (!topStoriesRes.ok) {
+      throw new Error(`HN API error: ${topStoriesRes.status}`);
+    }
+    
+    const topStoryIds = await topStoriesRes.json();
+    
+    // 3. 获取 Top 5 Story 详情 (并行请求)
+    const top5Ids = topStoryIds.slice(0, 5);
+    const storyPromises = top5Ids.map(id =>
+      fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`)
+        .then(res => res.json())
+        .catch(() => null)
+    );
+    
+    const stories = await Promise.all(storyPromises);
+    
+    // 4. 格式化数据
+    const topics = stories
+      .filter(s => s && s.type === 'story' && s.title)
+      .map(s => ({
+        id: s.id,
+        title: s.title,
+        url: s.url || `https://news.ycombinator.com/item?id=${s.id}`,
+        score: s.score || 0,
+        source: 'hackernews'
+      }));
+    
+    if (topics.length === 0) {
+      throw new Error('No valid stories found');
+    }
+    
+    // 5. 存入 KV 缓存
+    const now = Date.now();
+    const cacheData = {
+      topics,
+      fetchedAt: now,
+      expiresAt: now + HN_CACHE_TTL
+    };
+    
+    if (env.TRENDING_CACHE) {
+      await env.TRENDING_CACHE.put(cacheKey, JSON.stringify(cacheData), {
+        expirationTtl: 3600 // 1小时
+      });
+      console.log(`[HN Trending] Cached ${topics.length} topics`);
+    }
+    
+    // 6. 返回数据
+    return new Response(JSON.stringify({
+      success: true,
+      data: {
+        categories: [{
+          id: 'tech',
+          name: 'AI科技',
+          nameEn: 'AI & Tech',
+          topics
+        }],
+        updatedAt: new Date(now).toISOString(),
+        cachedUntil: new Date(now + HN_CACHE_TTL).toISOString()
+      }
+    }), {
+      headers: { ...corsHdrs, 'Content-Type': 'application/json' }
+    });
+    
+  } catch (error) {
+    console.error('[HN Trending] Error:', error.message);
+    
+    // 降级：尝试返回过期缓存
+    if (env.TRENDING_CACHE) {
+      const cached = await env.TRENDING_CACHE.get('trending:hn:tech', 'json');
+      if (cached && cached.topics) {
+        console.log('[HN Trending] Returning stale cache as fallback');
+        return new Response(JSON.stringify({
+          success: true,
+          data: {
+            categories: [{
+              id: 'tech',
+              name: 'AI科技',
+              nameEn: 'AI & Tech',
+              topics: cached.topics
+            }],
+            updatedAt: new Date(cached.fetchedAt).toISOString(),
+            cachedUntil: new Date(cached.expiresAt).toISOString()
+          },
+          fromCache: true,
+          stale: true
+        }), {
+          headers: { ...getCorsHeaders(request), 'Content-Type': 'application/json' }
+        });
+      }
+    }
+    
+    // 最终降级：返回错误
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Failed to fetch trending topics',
+      message: error.message
+    }), {
+      status: 500,
+      headers: { ...getCorsHeaders(request), 'Content-Type': 'application/json' }
     });
   }
 }

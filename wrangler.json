@@ -20,6 +20,10 @@
 		{
 			"binding": "AUTH_TOKENS",
 			"id": "85dd551ec4ed406fb11db9300f684385"
+		},
+		{
+			"binding": "TRENDING_CACHE",
+			"id": "621f8f318ecb49d59074007476aab894"
 		}
 	]
 }

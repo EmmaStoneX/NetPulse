@@ -14,13 +14,16 @@
     "placeholderFast": "Quick analysis (approx. 15 sec)...",
     "placeholderDeep": "Deep analysis (approx. 60 sec)...",
     "analyzeButton": "Analyze",
-    "trendingTopics": "Trending:",
     "typewriterPlaceholders": [
       "Enter your topic here...",
       "Will GPT-6 release this year?",
       "AI replacing jobs by 2030?",
       "Quantum computing vs encryption?"
     ]
+  },
+  "trending": {
+    "refresh": "Refresh",
+    "loadError": "Failed to load trending, showing cached data"
   },
   "loading": {
     "fastScanning": "Quick Scanning...",
