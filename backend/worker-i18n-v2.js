@@ -448,7 +448,7 @@ async function handleAnalyze(request, env, ctx) {
     }
 
     // 模型选择
-    const modelId = mode === "fast" ? "gemini-2.5-flash" : "gemini-3-pro-preview";
+    const modelId = mode === "fast" ? "gemini-3.1-flash-lite-preview" : "gemini-3.1-pro-preview";
 
     // --- Step 1: 调用 Tavily 搜索 API ---
     let searchResults = [];
@@ -625,7 +625,7 @@ async function handleTrending(request, env) {
         "Authorization": `Bearer ${geminiKey}`
       },
       body: JSON.stringify({
-        model: "gemini-2.5-flash",
+        model: "gemini-3.1-flash-lite-preview",
         messages: [{
           role: "user",
           content: promptTemplate.trendingPrompt(newsContext)
