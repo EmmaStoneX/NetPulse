@@ -305,7 +305,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => updateConfig({ llmProvider: e.target.value as LLMProvider, llmEndpoint: '', llmModelFast: '', llmModelDeep: '' })}
                 className="px-2 py-1 bg-secondary/50 border border-border rounded-lg text-xs text-foreground focus:outline-none focus:border-primary/50"
               >
-                {llmProviders.map((p) => <option key={p} value={p}>{PROVIDER_INFO.llm[p].name}</option>)}
+                {llmProviders.map((p) => <option key={p} value={p}>{p === 'custom' ? t('settings.customProvider') : PROVIDER_INFO.llm[p].name}</option>)}
               </select>
             </div>
 
