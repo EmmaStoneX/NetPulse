@@ -152,6 +152,20 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
   const llmProviders: LLMProvider[] = ['gemini', 'deepseek', 'openai', 'claude', 'custom'];
   const isCustomLLM = config.llmProvider === 'custom';
 
+  // Check if the endpoint URL might be missing a /v1 (or similar version) path
+  // Only warn for OpenAI-compatible providers (openai, deepseek, custom) where /v1 is expected
+  const isOpenAICompatible = ['openai', 'deepseek', 'custom'].includes(config.llmProvider);
+  const endpointValue = config.llmEndpoint?.trim() || '';
+  const isEndpointMissingV1 = isOpenAICompatible && endpointValue.length > 0 && (() => {
+    try {
+      const url = new URL(endpointValue);
+      // Warn if path is empty or just '/' (no version prefix like /v1)
+      return url.pathname === '/' || url.pathname === '';
+    } catch {
+      return false;
+    }
+  })();
+
   const renderTestIcon = (result: TestResult) => {
     if (result.status === 'testing') return <Loader2 className="w-3.5 h-3.5 animate-spin" />;
     if (result.status === 'success') return <CheckCircle className="w-3.5 h-3.5 text-green-500" />;
@@ -338,8 +352,15 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                   value={config.llmEndpoint}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateConfig({ llmEndpoint: e.target.value })}
                   placeholder={isCustomLLM ? t('settings.customEndpointPlaceholder') : PROVIDER_INFO.llm[config.llmProvider].endpoint}
-                  className="w-full px-3 py-2 bg-secondary/50 border border-border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+                  className={cn(
+                    "w-full px-3 py-2 bg-secondary/50 border rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50",
+                    isEndpointMissingV1 ? 'border-amber-500/50' : 'border-border'
+                  )}
                 />
+                {isEndpointMissingV1 && (
+                  <p className="text-xs text-amber-500 leading-relaxed">{t('settings.endpointMissingV1')}</p>
+                )}
+                <p className="text-xs text-muted-foreground/60">{t('settings.customEndpointHint')}</p>
               </div>
             )}
             {!isCustomLLM && !showEndpointInput && (
@@ -375,7 +396,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                 />
               </div>
             </div>
-            {!isCustomLLM && (
+            {!isCustomLLM && !showEndpointInput && (
               <p className="text-xs text-muted-foreground/60">{t('settings.customEndpointHint')}</p>
             )}
           </div>
