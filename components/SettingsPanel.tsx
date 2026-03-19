@@ -34,10 +34,13 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
   const [searchTestResult, setSearchTestResult] = useState<TestResult>({ status: 'idle' });
   const [llmTestResult, setLLMTestResult] = useState<TestResult>({ status: 'idle' });
   const [showWarning, setShowWarning] = useState(false);
+  const [showEndpointInput, setShowEndpointInput] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      setConfig(apiConfigStore.get());
+      const loadedConfig = apiConfigStore.get();
+      setConfig(loadedConfig);
+      setShowEndpointInput(!!loadedConfig.llmEndpoint?.trim());
       setSearchTestResult({ status: 'idle' });
       setLLMTestResult({ status: 'idle' });
     }
@@ -327,7 +330,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
             </div>
 
             {/* Custom Endpoint */}
-            {(isCustomLLM || config.llmEndpoint) && (
+            {(isCustomLLM || showEndpointInput) && (
               <div className="space-y-1">
                 <label className="text-xs text-muted-foreground">{t('settings.customEndpoint')}{isCustomLLM ? ' *' : ''}</label>
                 <input
@@ -339,10 +342,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ isOpen, onClose })
                 />
               </div>
             )}
-            {!isCustomLLM && !config.llmEndpoint && (
+            {!isCustomLLM && !showEndpointInput && (
               <button
                 type="button"
-                onClick={() => updateConfig({ llmEndpoint: ' ' })}
+                onClick={() => setShowEndpointInput(true)}
                 className="text-xs text-primary hover:text-primary/80"
               >
                 + {t('settings.customEndpoint')}

@@ -143,10 +143,34 @@ interface LLMAdapter {
   testConnection(apiKey: string, model: string, endpoint?: string): Promise<boolean>;
 }
 
+// Helper: safely parse a fetch response as JSON, with Content-Type validation
+const safeParseJsonResponse = async (response: Response, context: string): Promise<any> => {
+  const contentType = response.headers.get('content-type') || '';
+  const responseText = await response.text();
+
+  // If the response starts with HTML markup, give a clear error
+  if (responseText.trimStart().startsWith('<')) {
+    throw new Error(
+      `${context} returned an HTML page instead of JSON. ` +
+      `This usually means the endpoint is misconfigured, the URL is incorrect, ` +
+      `or the proxy/relay server encountered an error.`
+    );
+  }
+
+  // Try parsing as JSON regardless of Content-Type (some APIs don't set it)
+  try {
+    return JSON.parse(responseText);
+  } catch {
+    throw new Error(
+      `${context} returned an invalid response (not JSON): ${responseText.substring(0, 120)}`
+    );
+  }
+};
+
 // OpenAI Compatible Adapter (for OpenAI, DeepSeek, and custom endpoints)
 const createOpenAICompatibleAdapter = (defaultEndpoint: string): LLMAdapter => ({
   async chat(prompt: string, apiKey: string, model: string, endpoint?: string): Promise<string> {
-    const baseUrl = endpoint || defaultEndpoint;
+    const baseUrl = (endpoint || defaultEndpoint).trim();
     const response = await fetch(`${baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
@@ -160,16 +184,16 @@ const createOpenAICompatibleAdapter = (defaultEndpoint: string): LLMAdapter => (
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
+      const error = await safeParseJsonResponse(response, 'LLM API').catch(() => ({}));
       throw new Error(error.error?.message || `LLM API error: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = await safeParseJsonResponse(response, 'LLM API');
     return data.choices?.[0]?.message?.content || '';
   },
 
   async testConnection(apiKey: string, model: string, endpoint?: string): Promise<boolean> {
-    const baseUrl = endpoint || defaultEndpoint;
+    const baseUrl = (endpoint || defaultEndpoint).trim();
     const response = await fetch(`${baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
@@ -182,14 +206,21 @@ const createOpenAICompatibleAdapter = (defaultEndpoint: string): LLMAdapter => (
         max_tokens: 5,
       }),
     });
-    return response.ok;
+    if (!response.ok) return false;
+    // Also verify the response body is actually valid JSON
+    try {
+      await safeParseJsonResponse(response, 'LLM API');
+      return true;
+    } catch {
+      return false;
+    }
   },
 });
 
 // Gemini Adapter (using Google's native API format)
 const geminiAdapter: LLMAdapter = {
   async chat(prompt: string, apiKey: string, model: string, endpoint?: string): Promise<string> {
-    const baseUrl = endpoint || PROVIDER_INFO.llm.gemini.endpoint;
+    const baseUrl = (endpoint || PROVIDER_INFO.llm.gemini.endpoint).trim();
     const url = `${baseUrl}/models/${model}:generateContent?key=${apiKey}`;
     
     const response = await fetch(url, {
@@ -201,16 +232,16 @@ const geminiAdapter: LLMAdapter = {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
+      const error = await safeParseJsonResponse(response, 'Gemini API').catch(() => ({}));
       throw new Error(error.error?.message || `Gemini API error: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = await safeParseJsonResponse(response, 'Gemini API');
     return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
   },
 
   async testConnection(apiKey: string, model: string, endpoint?: string): Promise<boolean> {
-    const baseUrl = endpoint || PROVIDER_INFO.llm.gemini.endpoint;
+    const baseUrl = (endpoint || PROVIDER_INFO.llm.gemini.endpoint).trim();
     const url = `${baseUrl}/models/${model}:generateContent?key=${apiKey}`;
     
     const response = await fetch(url, {
@@ -221,7 +252,13 @@ const geminiAdapter: LLMAdapter = {
         generationConfig: { maxOutputTokens: 5 },
       }),
     });
-    return response.ok;
+    if (!response.ok) return false;
+    try {
+      await safeParseJsonResponse(response, 'Gemini API');
+      return true;
+    } catch {
+      return false;
+    }
   },
 };
 
@@ -229,7 +266,7 @@ const geminiAdapter: LLMAdapter = {
 // Claude Adapter (using Anthropic's native API format)
 const claudeAdapter: LLMAdapter = {
   async chat(prompt: string, apiKey: string, model: string, endpoint?: string): Promise<string> {
-    const baseUrl = endpoint || PROVIDER_INFO.llm.claude.endpoint;
+    const baseUrl = (endpoint || PROVIDER_INFO.llm.claude.endpoint).trim();
     const response = await fetch(`${baseUrl}/messages`, {
       method: 'POST',
       headers: {
@@ -246,16 +283,16 @@ const claudeAdapter: LLMAdapter = {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({}));
+      const error = await safeParseJsonResponse(response, 'Claude API').catch(() => ({}));
       throw new Error(error.error?.message || `Claude API error: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = await safeParseJsonResponse(response, 'Claude API');
     return data.content?.[0]?.text || '';
   },
 
   async testConnection(apiKey: string, model: string, endpoint?: string): Promise<boolean> {
-    const baseUrl = endpoint || PROVIDER_INFO.llm.claude.endpoint;
+    const baseUrl = (endpoint || PROVIDER_INFO.llm.claude.endpoint).trim();
     const response = await fetch(`${baseUrl}/messages`, {
       method: 'POST',
       headers: {
@@ -270,7 +307,13 @@ const claudeAdapter: LLMAdapter = {
         messages: [{ role: 'user', content: 'Hi' }],
       }),
     });
-    return response.ok;
+    if (!response.ok) return false;
+    try {
+      await safeParseJsonResponse(response, 'Claude API');
+      return true;
+    } catch {
+      return false;
+    }
   },
 };
 
