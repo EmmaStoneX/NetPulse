@@ -229,10 +229,11 @@ const App: React.FC = () => {
             href="https://github.com/EmmaStoneX/NetPulse"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-muted-foreground/60 hover:text-foreground transition-colors flex items-center"
+            className="flex items-center gap-1.5 text-muted-foreground/60 hover:text-foreground transition-colors"
             title="GitHub Repository"
           >
             <Github className="w-3.5 h-3.5 md:w-4 md:h-4" />
+            <span className="font-semibold tracking-tight">GitHub</span>
           </a>
         </div>
       </div>
