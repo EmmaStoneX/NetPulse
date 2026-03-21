@@ -36,9 +36,9 @@ export const TrendingSection: React.FC<TrendingSectionProps> = ({
             <div key={i} className="h-9 bg-muted/30 rounded animate-pulse" />
           ))}
         </div>
-        {/* 移动端单列骨架 - 只显示3条 */}
+        {/* 移动端单列骨架 */}
         <div className="sm:hidden space-y-0.5">
-          {[1, 2, 3].map(i => (
+          {[1, 2, 3, 4, 5].map(i => (
             <div key={i} className="h-9 bg-muted/30 rounded animate-pulse" />
           ))}
         </div>
@@ -106,9 +106,9 @@ export const TrendingSection: React.FC<TrendingSectionProps> = ({
         </div>
       </div>
 
-      {/* 移动端：单列布局，只显示前3条以节省空间 */}
+      {/* 移动端：单列布局 */}
       <div className="sm:hidden space-y-0.5">
-        {topics.slice(0, 3).map((topic, idx) => (
+        {topics.map((topic, idx) => (
           <TrendingItem
             key={topic.id}
             topic={topic}
