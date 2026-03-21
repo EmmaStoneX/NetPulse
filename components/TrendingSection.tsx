@@ -106,8 +106,8 @@ export const TrendingSection: React.FC<TrendingSectionProps> = ({
         </div>
       </div>
 
-      {/* 移动端：单列布局 */}
-      <div className="sm:hidden space-y-0.5">
+      {/* 移动端：单列布局，无间距 */}
+      <div className="sm:hidden">
         {topics.map((topic, idx) => (
           <TrendingItem
             key={topic.id}
@@ -149,7 +149,7 @@ const TrendingItem: React.FC<{
         "w-full flex items-center gap-1.5 sm:gap-2 py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-lg text-left",
         "hover:bg-secondary/50 transition-colors group",
         "disabled:opacity-50 disabled:cursor-not-allowed",
-        mobile && "py-2"
+        mobile && "py-1"
       )}
     >
       <span className={cn(
