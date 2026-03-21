@@ -105,23 +105,24 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
 
   return (
     <div className="w-full max-w-5xl mx-auto text-center">
+      {/* 移动端：更紧凑的标题，避免英文过长 */}
       <h2 className={cn(
-        "text-xl sm:text-3xl md:text-5xl font-bold mb-6 md:mb-8 tracking-tight px-2 text-foreground md:leading-relaxed",
+        "text-lg sm:text-3xl md:text-5xl font-bold mb-3 sm:mb-6 md:mb-8 tracking-tight px-2 text-foreground md:leading-relaxed leading-tight",
         isZh && 'whitespace-nowrap'
       )}>
-        <span className={isZh ? '' : 'block sm:inline mb-2 sm:mb-0'}>{t('searchBar.heroTitle1')}</span>{' '}
+        <span className={isZh ? '' : ''}>{t('searchBar.heroTitle1')}</span>{' '}
         <span className="gradient-text whitespace-nowrap">{t('searchBar.heroTitle2')}</span>
       </h2>
+      {/* 移动端：更小的描述文字和间距 */}
       <p className={cn(
-        "text-muted-foreground mb-6 md:mb-8 text-sm sm:text-base md:text-lg px-4 max-w-3xl mx-auto",
-        isZh ? 'whitespace-nowrap' : 'md:whitespace-nowrap'
+        "text-muted-foreground mb-4 sm:mb-6 md:mb-8 text-xs sm:text-base md:text-lg px-4 max-w-3xl mx-auto leading-relaxed"
       )}>
         {t('searchBar.heroDescription')}
       </p>
 
-      {/* 模式切换 */}
-      <div className="flex justify-center mb-6">
-        <div className="bg-card/80 border border-border p-1 rounded-xl inline-flex items-center gap-1">
+      {/* 模式切换 - 移动端更紧凑 */}
+      <div className="flex justify-center mb-4 sm:mb-6">
+        <div className="bg-card/80 border border-border p-0.5 sm:p-1 rounded-xl inline-flex items-center gap-0.5 sm:gap-1">
           <button
             onClick={() => {
               trackModeSelected('fast');

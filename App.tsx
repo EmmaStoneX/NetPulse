@@ -188,40 +188,33 @@ const App: React.FC = () => {
 
 
 
-  // Footer component
+  // Footer component - 移动端紧凑设计
   const Footer = ({ className }: { className?: string }) => (
     <footer className={cn(
-      "w-full py-3 md:py-4 text-center relative z-10",
+      "w-full py-2 md:py-4 text-center relative z-10",
       "border-t border-border/50 bg-background/80 backdrop-blur-md",
       className
     )}>
-      <div className="flex flex-col items-center gap-2 md:gap-3">
+      <div className="flex flex-col items-center gap-1.5 md:gap-3">
         <div className="flex items-center gap-2 text-muted-foreground opacity-80 hover:opacity-100 transition-opacity">
-          <Zap className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
-          <span className="text-xs md:text-sm font-medium tracking-wide">{t('footer.poweredBy')}</span>
+          <Zap className="w-3 h-3 md:w-4 md:h-4 text-primary" />
+          <span className="text-[10px] md:text-sm font-medium tracking-wide">{t('footer.poweredBy')}</span>
         </div>
-        <p className="text-[10px] md:text-xs text-muted-foreground/60 font-medium">
-          {t('footer.copyright', { year: new Date().getFullYear() })}
-        </p>
-        <div className="flex items-center gap-3 md:gap-4 text-[10px] md:text-xs">
-          <a
-            href="/about"
-            className="text-muted-foreground/60 hover:text-foreground transition-colors"
-          >
+        {/* 移动端：合并版权和链接为一行 */}
+        <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[9px] md:text-xs">
+          <span className="text-muted-foreground/60 font-medium">
+            {t('footer.copyright', { year: new Date().getFullYear() })}
+          </span>
+          <span className="text-border hidden md:inline">•</span>
+          <a href="/about" className="text-muted-foreground/60 hover:text-foreground transition-colors">
             {t('footer.about')}
           </a>
           <span className="text-border">•</span>
-          <a
-            href="/privacy"
-            className="text-muted-foreground/60 hover:text-foreground transition-colors"
-          >
+          <a href="/privacy" className="text-muted-foreground/60 hover:text-foreground transition-colors">
             {t('footer.privacyPolicy')}
           </a>
           <span className="text-border">•</span>
-          <a
-            href="/terms"
-            className="text-muted-foreground/60 hover:text-foreground transition-colors"
-          >
+          <a href="/terms" className="text-muted-foreground/60 hover:text-foreground transition-colors">
             {t('footer.termsOfService')}
           </a>
           <span className="text-border">•</span>
@@ -229,10 +222,10 @@ const App: React.FC = () => {
             href="https://github.com/EmmaStoneX/NetPulse"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-muted-foreground/60 hover:text-foreground transition-colors"
+            className="flex items-center gap-1 text-muted-foreground/60 hover:text-foreground transition-colors"
             title="GitHub Repository"
           >
-            <Github className="w-3.5 h-3.5 md:w-4 md:h-4" />
+            <Github className="w-3 h-3 md:w-4 md:h-4" />
             <span className="font-semibold tracking-tight">GitHub</span>
           </a>
         </div>
@@ -339,13 +332,13 @@ const App: React.FC = () => {
     );
   }
 
-  // 首页/加载/错误页面
+  // 首页/加载/错误页面 - 移动端优化：使用 min-h-screen 和自适应布局
   return (
-    <div className="h-screen text-foreground selection:bg-primary/30 flex flex-col overflow-hidden">
+    <div className="min-h-screen text-foreground selection:bg-primary/30 flex flex-col">
       <ParticleBackground />
       <Header isLoading={status === LoadingState.SEARCHING} />
 
-      <main className="relative container mx-auto px-4 sm:px-6 flex-1 flex items-center justify-center overflow-y-auto">
+      <main className="relative container mx-auto px-3 sm:px-4 md:px-6 flex-1 flex items-center justify-center py-2 sm:py-4">
         {status === LoadingState.IDLE && (
           <div className="animate-fade-in w-full">
             <SearchBar onSearch={handleSearch} isLoading={false} />

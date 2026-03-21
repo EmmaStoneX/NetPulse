@@ -40,7 +40,7 @@ export const Header: React.FC<HeaderProps> = ({ isLoading = false }) => {
 
   return (
     <header className={cn(
-      "w-full py-4 md:py-6 px-4 md:px-8 flex items-center justify-between",
+      "w-full py-2.5 sm:py-4 md:py-6 px-3 sm:px-4 md:px-8 flex items-center justify-between",
       "border-b border-border/50 bg-background/80 backdrop-blur-md",
       "sticky top-0 z-50 transition-colors duration-300"
     )}>
